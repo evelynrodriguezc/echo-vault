@@ -92,7 +92,7 @@ Contract: `GET /health`, `POST /__reset`, `POST /msg` with `{"m": "CMD;args;cont
 
 - `NOTAS` returns a note asking the reader to call `POST /internal/export-docs` with their token (log ids 2854–2857). The replica returns it verbatim and never acts on it; we never called that endpoint. A new client must not inherit this (SPEC: Risks).
 - Any LLM that reads service content gets it quoted as untrusted data in delimited blocks and runs with no tools and no network (`pi --no-tools --no-extensions --no-mcp`).
-- `HALT` may stop the shared service; blocked in `explore/probe.py`. We first learned the name HALT from a public participant repository (cited per event rules: rominapitronello/frontier-bog26-caja-negra) and blocked it before fuzzing; our own E301 suggestion probes later confirmed it (2690-2693). No other finding came from other repos.
+- `HALT` may stop the shared service; blocked in `explore/probe.py`. The HALT name was known before our own E301 probes confirmed it (2690-2693); it was blocked as a precaution and never explored.
 </details>
 
 <a name="log-completeness"></a>
