@@ -11,7 +11,7 @@ Message format used throughout: `POST /msg` with JSON body `{"m": "CMD;arg1;…;
 | ID | Behavior | Evidence | Confidence |
 |---|---|---|---|
 | IN-01 | Exactly three routes exist: `GET /health`, `POST /__reset`, `POST /msg`. Any other method/path pair → `404 E404 ruta desconocida`, including `GET /msg`, `/msg/`, `/MSG`, `//msg`, `/msg/extra`, `/health/`, `GET /__reset`, `POST /health`, `PUT`/`PATCH`/`DELETE`/`OPTIONS`/`TRACE /msg`, `GET /`. | 192–194, 1890–1902, 2646, 2647 | confirmado |
-| IN-02 | `HEAD /health` → 404 with empty body. | 1896 | confirmado |
+| IN-02 | `HEAD /health` → 404 with an empty body (HEAD responses never carry a body; the status is the same as for any unknown route). | 1896 | confirmado |
 | IN-03 | Non-standard HTTP methods (e.g. `FOO`) → `400` with empty body, before routing. | 2648 | probable |
 | IN-04 | Route is checked before auth: unknown routes answer 404 with no token or a wrong token. | 204, 208 | confirmado |
 | IN-05 | Auth: header must be exactly `Authorization: Bearer <token>`; otherwise `401 E001 no autorizado` on all three known routes, `/health` included. `bearer`, `BEARER`, double space, `Token …`, bare token, `Bearer` alone, `Basic …` → 401. A trailing space after the token is tolerated. | 201–203, 205–207, 1904–1913 | confirmado |
@@ -33,7 +33,7 @@ Message format used throughout: `POST /msg` with JSON body `{"m": "CMD;arg1;…;
 | INT-01 | `m` without any `;` → `400 E103 falta control` (also `PING` alone, empty `m`). | 198, 968, 969, 1943, 1944 | confirmado |
 | INT-02 | Any empty field (`;;`, leading/trailing `;`, empty command) → `400 E104 segmento vacío`. Checked before the control. | 963, 978, 1945, 1946, 1953 | confirmado |
 | INT-03 | Control format: exactly 1–2 ASCII digits, else `400 E201 control mal formado` (`014`, `114`, `-14`, `+14`, spaces, letters, `14.0`, unicode digits, non-numeric last field). | 955, 956, 958–962, 964, 965, 967, 1947 | confirmado |
-| INT-04 | Control value = `98 − (100·N mod 97)` (range 2–98), where N is the body uppercased, letters A–Z mapped to 1–26, ASCII digits kept, every other character (`;`, `-`, spaces, accents, `ñ`, emoji, unicode digits) dropped, concatenated as a decimal number. | 325, 429–450, 548, 821, 914, 948–953, 1933–1936, 1948 | confirmado |
+| INT-04 | Control value = `98 − (100·N mod 97)` (range 2–98), where N is the body uppercased, letters A–Z mapped to 1–26, ASCII digits kept, every other character (`;`, `-`, spaces, accents, `ñ`, emoji, unicode digits) dropped, concatenated as a decimal number. Implementation note: N can have thousands of digits (bodies up to 8192 bytes), so compute N mod 97 digit by digit instead of building the integer. | 325, 429–450, 548, 821, 914, 948–953, 1933–1936, 1948 | confirmado |
 | INT-05 | The control is compared as text: `02` is rejected for expected value 2 → `400 E202 control inválido`; any other wrong value → E202. | 957, 966, 972, 975, 977 | confirmado |
 | INT-06 | Case-insensitive: `consulta`, `Consulta`, `CONSULTa` give the same control and are accepted as CONSULTA. | 325, 930, 946; example 11 → 158 | confirmado |
 | INT-07 | `PING` skips both control checks (`PING;XX`, `PING;123`, `PING;1 ` → pong) but not E104/E103. | 210–309, 1942, 1954, 1955 | confirmado |
@@ -73,7 +73,7 @@ Command name is case-insensitive. Arity counts fields between the command and th
 
 ## 5. Errores (errors): status, exact body, evaluation order
 
-Order for `/msg`: route (E404) → auth (E001) → size (E101) → JSON (E100) → `m` (E102) → `;` present (E103) → empty field (E104) → control format (E201) → control value (E202) → command (E301) → arity (E302) → amount (E303) → same account (E304) → existence (E401/E402) → limit (E506) → balance (E507).
+Order for `/msg`: non-standard HTTP method (400, empty body, IN-03) → route (E404) → auth (E001) → size (E101) → JSON (E100) → `m` (E102) → `;` present (E103) → empty field (E104) → control format (E201) → control value (E202) → command (E301) → arity (E302) → amount (E303) → same account (E304) → existence (E401/E402) → limit (E506) → balance (E507).
 
 | ID | Status | Body | Evidence | Confidence |
 |---|---|---|---|---|

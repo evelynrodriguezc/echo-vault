@@ -1,0 +1,18 @@
+[
+ {
+  "id": 1896,
+  "cat": "entrada-auth",
+  "m": null,
+  "expected": [
+   404,
+   ""
+  ],
+  "blind": [
+   404,
+   {
+    "error": "E404",
+    "mensaje": "ruta desconocida"
+   }
+  ]
+ }
+]

@@ -41,6 +41,17 @@ Local evals stayed at 100% while the official score was 64 and 79: our hold-outs
 
 Honest finding: hold-out v1 was biased toward errors (100 of 437 responses were `E401`, only 13 successful deposits/transfers, 1 `E506`, no `E507`) because the generator often referenced accounts that did not exist yet. It passed 100% but under-tested money flows. Hold-out v2 fixed that and exposed a real rule we had missed: the transfer limit is skipped between accounts with the same holder name.
 
+## Blind spec check
+
+`evals/blind_reader.py` asks a model (pi + `anthropic/claude-sonnet-5.5`, no tools/network, SPEC.md passed as untrusted data) to reimplement the service from `SPEC.md` alone, then replays the whole experiment log against that code.
+
+| Run | Spec version | Matching requests | Mismatches | Cost / latency |
+|---|---|---|---|---|
+| 1 | first SPEC.md | 2972/2981 (99.7%) | 9: 7 crashes on long messages (spec did not warn that N has thousands of digits), `FOO` method missing from the error order, `HEAD` body | $0.040 / 12.9 s |
+| 2 | after fixing those gaps | 2980/2981 (99.97%) | 1: `HEAD /health` body — harness artifact (HTTP never sends a body for HEAD; the replica matches over real HTTP) | $0.042 / 13.7 s |
+
+Generated code and mismatches: `evals/blind/`. Runs are logged in `evals/blind/runs.jsonl`.
+
 ## Log completeness
 
 Every request we sent to the original is in `experimentos.jsonl`, except these 3 (around 10:50, before the prober became the only network path):

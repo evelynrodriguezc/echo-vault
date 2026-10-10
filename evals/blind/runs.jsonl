@@ -1,0 +1,2 @@
+{"ts": "12:44:04", "model": "anthropic/claude-sonnet-5.5", "latency_s": 12.9, "cost_usd": 0.040163000000000004, "input_tokens": 4, "output_tokens": 2349}
+{"ts": "12:44:40", "model": "anthropic/claude-sonnet-5.5", "latency_s": 13.7, "cost_usd": 0.0423605, "input_tokens": 4, "output_tokens": 2544}
