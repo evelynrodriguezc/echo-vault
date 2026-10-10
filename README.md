@@ -59,7 +59,7 @@ Railway builds from requirements.txt + railway.json; Python version pinned in .p
 
 ## Incident
 
-Ticket #FR-0153 (15:30): v2 changed 3 behaviors; it answered our token from 15:55:28. Confirmed: balance as a string with 2 decimals, TRANSFER limit lowered to 50000. Also first observed in v2 checks: E510 account lock after 3 consecutive E506 (cannot prove it is new). Replica updated through `rules.json` and the engine, verified on the deploy, run 3 = 89/100. Details: [incident.md](incident.md), SPEC section 6.
+Ticket #FR-0153 (15:30): v2 changed 3 behaviors; it answered our token from 15:55:28. Confirmed: balance as a string with 2 decimals, TRANSFER limit lowered to 50000. Also first observed in v2 checks: E510 account lock after 3 consecutive rejected transfers (E506/E507; not fully provable as new). Replica updated through `rules.json` and the engine, verified on the deploy, run 3 = 89/100. Details: [incident.md](incident.md), SPEC section 6.
 
 ## What didn't work
 

@@ -87,7 +87,7 @@
     "max_transfer": 50000,
     "max_amount": 9999999999,
     "suggestion_max_distance": 2,
-    "lock_after_consecutive_e506": 3
+    "lock_after_consecutive_rejections": 3
   },
   "suggest_only": [
     "HALT"

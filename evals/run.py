@@ -34,7 +34,7 @@ TOKENS = {"own": "eval-team-token", "other": "wrong-token-123", "none": None}
 
 def category(seq):
     for prefix, name in (("recon", "entrada-auth"), ("format", "integridad"), ("sweep", "integridad"),
-                         ("control", "integridad"), ("precedence", "errores"), ("cmd", "comandos"), ("A-", "entrada-auth"), ("B-", "integridad"), ("C-", "comandos"), ("G-", "comandos"), ("D-", "supuestos"), ("E-", "secuencias-largas"), ("F-", "fuzzer"), ("K", "v2-checks"), ("L", "v2-checks"), ("H-", "estado-reglas"), ("N-", "comandos"), ("canary", "canario"), ("specprobe", "spec-probe"), ("holdout2", "holdout-money"), ("holdout", "holdout")):
+                         ("control", "integridad"), ("precedence", "errores"), ("cmd", "comandos"), ("A-", "entrada-auth"), ("B-", "integridad"), ("C-", "comandos"), ("G-", "comandos"), ("D-", "supuestos"), ("E-", "secuencias-largas"), ("F-", "fuzzer"), ("K", "v2-checks"), ("L", "v2-checks"), ("M", "v2-checks"), ("H-", "estado-reglas"), ("N-", "comandos"), ("canary", "canario"), ("specprobe", "spec-probe"), ("holdout2", "holdout-money"), ("holdout", "holdout")):
         if seq.startswith(prefix):
             return name
     return "other"

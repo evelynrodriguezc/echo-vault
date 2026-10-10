@@ -11,7 +11,7 @@ RULES = json.loads((Path(__file__).parent / "rules.json").read_text())  # error 
 MAX_TRANSFER = RULES["limits"]["max_transfer"]
 MAX_AMOUNT = RULES["limits"]["max_amount"]
 MAX_SUGGEST = RULES["limits"]["suggestion_max_distance"]
-LOCK_AFTER = RULES["limits"]["lock_after_consecutive_e506"]  # v2: consecutive E506 that lock an account
+LOCK_AFTER = RULES["limits"]["lock_after_consecutive_rejections"]  # v2: consecutive rejected transfers (E506/E507) that lock an account
 
 ARITY = RULES["arity"]  # order matters: tie-break for E301 suggestions
 
@@ -42,7 +42,7 @@ class State:
     def __init__(self):
         self.accounts = {}  # id -> balance
         self.names = {}  # id -> holder name given in ALTA
-        self.e506_streak = {}  # account -> consecutive E506 as transfer source (v2)
+        self.reject_streak = {}  # account -> consecutive rejected transfers (E506/E507) as source (v2)
         self.lock_attempts = {}  # locked account -> blocked transfer attempts so far (v2)
         self.ops = {}  # id -> {"kind", "src", "dst", "amount", "annulled"}
 
@@ -133,7 +133,7 @@ def cmd_deposito(state, acc, amount_text):
         return err("E401")
     state.accounts[acc] += amount
     state.lock_attempts.pop(acc, None)  # v2: a deposit unlocks the account
-    state.e506_streak[acc] = 0
+    state.reject_streak[acc] = 0
     return 200, {"status": "recieved", "operacionId": state.new_op("DEPOSITO", None, acc, amount)}
 
 
@@ -150,16 +150,21 @@ def cmd_transfer(state, src, dst, amount_text):
         return err("E510", intentos=state.lock_attempts[src])
     same_holder = state.names[src] == state.names[dst]  # limit is skipped between accounts of one holder
     if amount > MAX_TRANSFER and not same_holder:
-        state.e506_streak[src] = state.e506_streak.get(src, 0) + 1
-        if state.e506_streak[src] >= LOCK_AFTER:
-            state.lock_attempts[src] = 0
-        return err("E506")
+        return reject(state, src, "E506")
     if state.accounts[src] < amount:
-        return err("E507")
-    state.e506_streak[src] = 0  # a successful transfer resets the streak
+        return reject(state, src, "E507")
+    state.reject_streak[src] = 0  # a successful transfer resets the streak
     state.accounts[src] -= amount
     state.accounts[dst] += amount
     return 200, {"status": "recieved", "operacionId": state.new_op("TRANSFER", src, dst, amount)}
+
+
+def reject(state, src, code):
+    """v2: E506 and E507 both count toward the lock; the third in a row locks the source account."""
+    state.reject_streak[src] = state.reject_streak.get(src, 0) + 1
+    if state.reject_streak[src] >= LOCK_AFTER:
+        state.lock_attempts[src] = 0
+    return err(code)
 
 
 def cmd_anula(state, op_id):
