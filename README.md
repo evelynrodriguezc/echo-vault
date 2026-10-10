@@ -28,13 +28,17 @@ Exact replica of an undocumented account service, rebuilt from black-box experim
 
 ## Quickstart
 
-Requires [uv](https://docs.astral.sh/uv/) (it fetches Python ≥ 3.12 if needed). From the repo root:
+Requires [uv](https://docs.astral.sh/uv/) (it fetches the pinned Python 3.12 if needed). From the repo root:
 
 ```bash
 uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt httpx pytest
 TEAM_TOKEN=<team token> .venv/bin/uvicorn --app-dir replica app:app --port 8000
 .venv/bin/python evals/run.py && .venv/bin/python -m pytest -q tests   # offline: replay the log, isolation test
 ```
+
+## Deploy
+
+Railway builds from requirements.txt + railway.json; Python version pinned in .python-version.
 
 ## How it works
 
