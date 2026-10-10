@@ -32,9 +32,17 @@ def _next_id():
     return sum(1 for _ in LOG.open()) + 1
 
 
+def _is_halt(body, raw_body):
+    """HALT may stop the shared service for every team: never send it."""
+    text = raw_body if raw_body is not None else json.dumps(body)
+    return "HALT" in text.upper()
+
+
 def send(method, path, body=None, token=TOKEN, raw_body=None, content_type="application/json"):
     """Send one request; return (status, headers, text). Not logged."""
     global _last_call
+    if _is_halt(body, raw_body):
+        raise ValueError("blocked: HALT is never sent to the original")
     wait = MIN_INTERVAL - (time.time() - _last_call)
     if wait > 0:
         time.sleep(wait)
