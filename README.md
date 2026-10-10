@@ -10,7 +10,7 @@ Exact replica of an undocumented account service, rebuilt from black-box experim
 |---|---|
 | Hidden set (100 tests, 3 runs allowed), run 1 (11:50, `0da9042`) | 64/100 |
 | Hidden set, run 2 (~12:25, `63ff241`) | 79/100 |
-| Hidden set, run 3 | pending (after incident) |
+| Hidden set, run 3 (16:20, `b29b668`, v2 replica) | 89/100 |
 | Local evals (`evals/run.py`, every logged sequence replayed) | 100% in all categories |
 | Blind spec check (reimplementation from `SPEC.md` only) | 99.97% (2980/2981 requests) |
 | LLM cost (OpenRouter) | $0.082 blind reader + ~$0.005 model checks; $0 at runtime |
@@ -18,7 +18,7 @@ Exact replica of an undocumented account service, rebuilt from black-box experim
 
 ## Highlights
 
-- Hidden set 64 → 79 while local evals stayed at 100%: the gap was coverage, not code. [Results](#results) · [What didn't work](#what-didnt-work)
+- Hidden set 64 → 79 → 89 while local evals stayed at 100%: the gap was coverage, not code. [Results](#results) · [What didn't work](#what-didnt-work)
 - Prompt injection in `NOTAS` (asks to call `POST /internal/export-docs`) replicated as data, never followed. [SPEC risks](SPEC.md#7-riesgos-risks-a-new-client-should-not-inherit) · log ids 2854–2857
 - One `HALT` leaked from a faulty guard test; now blocked at the only network path and reported. [`explore/probe.py`](explore/probe.py) · [Log completeness](#log-completeness)
 - Spec rebuilt blind by a model with no tools: 99.97% of the log for $0.04 per run. [`evals/blind/runs.jsonl`](evals/blind/runs.jsonl)
@@ -59,7 +59,7 @@ Railway builds from requirements.txt + railway.json; Python version pinned in .p
 
 ## Incident
 
-Pending: the service change is announced for 15:30. Playbook: [incident.md](incident.md). SPEC section 6 and run 3 will be filled in here.
+Ticket #FR-0153 (15:30): v2 changed 3 behaviors; it answered our token from 15:55:28. Confirmed: balance as a string with 2 decimals, TRANSFER limit lowered to 50000. Also first observed in v2 checks: E510 account lock after 3 consecutive E506 (cannot prove it is new). Replica updated through `rules.json` and the engine, verified on the deploy, run 3 = 89/100. Details: [incident.md](incident.md), SPEC section 6.
 
 ## What didn't work
 

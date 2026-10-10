@@ -67,6 +67,8 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 
 | 16:14 | Spec probe (`v2`) rerun for a late rollout | replica matches 100% of its sequences; flagged rows are the superseded ones plus an ERR-E510 replay artifact (probe skipped the E506 lines; fixed) |
 
+| 16:20 | Official validation run 3 on `b29b668` (v2 replica) | **89/100**: easy 39/40, regular 38/40, hard 12/20; 11 failures, all status mismatches (0 body), 2 on the first request, 9 later in the sequence |
+
 Result: 2 confirmed v2 changes (CHG-01 balance as string, CHG-02 limit 50000) and E510 lock as CHG-03, first observed in v2 checks but not provably new (v1 never saw 3 consecutive E506 from one account).
 
 Hypotheses after 0 diffs: (1) v2 is not yet active for participant tokens (staggered rollout or evaluation environment only); (2) the 3 changes sit in paths none of our probes reach: state transitions within a sequence, consequences after errors, repetition effects, or scale thresholds (many accounts or operations per token, very large balances, old annulments).
@@ -78,5 +80,5 @@ Evidence from official run 2 (12:27, before NOTAS was replicated): easy 39/40, r
 |---|---|
 | Replica commit | `9c7d5fe` (rules in `replica/rules.json`) |
 | Local evals | 100% in all 10 categories (2,500+ logged requests replayed) |
-| Official validation | #1 at 11:50: 64/100 (before blocks A–F fixes) · #2 at ~12:25: 79/100 (`63ff241`) |
+| Official validation | #1 at 11:50: 64/100 (before blocks A–F fixes) · #2 at ~12:25: 79/100 (`63ff241`) · #3 at 16:20: 89/100 (`b29b668`, v2) |
 | Canary v1 | 12:17, 0 diffs (seqs `canary-1217-*`, 37 requests) |
