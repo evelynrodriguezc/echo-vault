@@ -6,13 +6,13 @@ import threading
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from engine import State, handle
+from engine import RULES, State, err, handle
 
 TEAM_TOKEN = os.environ.get("TEAM_TOKEN", "")
 print(f"TEAM_TOKEN set: {bool(TEAM_TOKEN)} (length {len(TEAM_TOKEN)})", flush=True)  # never the value
 ROUTES = {("GET", "/health"), ("POST", "/__reset"), ("POST", "/msg")}
 RAILWAY_HEALTHCHECK_HOST = "healthcheck.railway.app"
-MAX_BODY = 8192  # bytes; larger raw body -> 413 E101 (checked after route and auth)
+MAX_BODY = RULES["limits"]["max_body_bytes"]  # larger raw body -> 413 E101 (checked after route and auth)
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 state = State()
@@ -28,11 +28,11 @@ async def catch_all(request: Request, path: str):
     global state
     route = (request.method, "/" + path)
     if route not in ROUTES:
-        return reply(404, {"error": "E404", "mensaje": "ruta desconocida"})
+        return reply(*err("E404"))
     if route == ("GET", "/health") and request.headers.get("host") == RAILWAY_HEALTHCHECK_HOST:
         return reply(200, {"ok": True})  # platform healthcheck sends no token; any other host still needs one
     if not TEAM_TOKEN or request.headers.get("authorization", "").strip() != f"Bearer {TEAM_TOKEN}":
-        return reply(401, {"error": "E001", "mensaje": "no autorizado"})
+        return reply(*err("E001"))
     if route == ("GET", "/health"):
         return reply(200, {"ok": True})
     if route == ("POST", "/__reset"):
@@ -41,13 +41,13 @@ async def catch_all(request: Request, path: str):
         return reply(200, {"ok": True})
     raw = await request.body()
     if len(raw) > MAX_BODY:
-        return reply(413, {"error": "E101", "mensaje": "cuerpo demasiado grande"})
+        return reply(*err("E101"))
     try:
         payload = json.loads(raw)
     except ValueError:
-        return reply(400, {"error": "E100", "mensaje": "json inválido"})
+        return reply(*err("E100"))
     m = payload.get("m") if isinstance(payload, dict) else None
     if not isinstance(m, str):
-        return reply(400, {"error": "E102", "mensaje": "falta m"})
+        return reply(*err("E102"))
     with lock:
         return reply(*handle(state, m))

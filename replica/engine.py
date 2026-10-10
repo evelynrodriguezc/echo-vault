@@ -3,15 +3,20 @@
 Evaluation order (see explore/FINDINGS.md): shape (E103/E104) -> control format (E201)
 -> control value (E202) -> command / arity (E301/E302) -> arguments (E303/E304) -> state (E401...).
 """
+import json
 import re
+from pathlib import Path
 
-MAX_TRANSFER = 100_000
-MAX_AMOUNT = 9_999_999_999  # largest accepted amount (10 digits); 10000000000 -> E303
+RULES = json.loads((Path(__file__).parent / "rules.json").read_text())  # error codes/texts, arity, limits
+MAX_TRANSFER = RULES["limits"]["max_transfer"]
+MAX_AMOUNT = RULES["limits"]["max_amount"]
+MAX_SUGGEST = RULES["limits"]["suggestion_max_distance"]
 
-ARITY = {"PING": 0, "ALTA": 1, "CONSULTA": 1, "DEPOSITO": 2, "TRANSFER": 3, "ANULA": 1}
+ARITY = RULES["arity"]  # order matters: tie-break for E301 suggestions
 
 
-def err(status, code, mensaje, **extra):
+def err(code, **extra):
+    status, mensaje = RULES["errors"][code]
     return status, {"error": code, "mensaje": mensaje, **extra}
 
 
@@ -70,23 +75,23 @@ def parse_amount(text):
 
 def handle(state, m):
     if ";" not in m:
-        return err(400, "E103", "falta control")
+        return err("E103")
     fields = m.split(";")
     if any(f == "" for f in fields):
-        return err(400, "E104", "segmento vacío")
+        return err("E104")
     body, ctl = m.rsplit(";", 1)
     cmd, args = fields[0].upper(), fields[1:-1]
     if cmd != "PING":  # PING skips both control checks (PING;XX -> pong)
         if not re.fullmatch(r"[0-9]{1,2}", ctl):
-            return err(400, "E201", "control mal formado")
+            return err("E201")
         if ctl != str(control(body)):
-            return err(400, "E202", "control inválido")
+            return err("E202")
     if cmd not in ARITY:
-        near = sorted((distance(cmd, c), i, c) for i, c in enumerate(ARITY) if distance(cmd, c) <= 2)
+        near = sorted((distance(cmd, c), i, c) for i, c in enumerate(ARITY) if distance(cmd, c) <= MAX_SUGGEST)
         extra = {"sugerencia": near[0][2]} if near else {}
-        return err(400, "E301", "comando desconocido ", **extra)
+        return err("E301", **extra)
     if len(args) != ARITY[cmd]:
-        return err(400, "E302", "aridad inválida")
+        return err("E302")
     return COMMANDS[cmd](state, *args)
 
 
@@ -100,16 +105,16 @@ def cmd_alta(state, name):
 
 def cmd_consulta(state, acc):
     if acc not in state.accounts:
-        return err(404, "E401", "cuenta inexistente")
+        return err("E401")
     return 200, {"cuenta_id": acc, "saldo": state.accounts[acc]}
 
 
 def cmd_deposito(state, acc, amount_text):
     amount = parse_amount(amount_text)
     if amount is None:
-        return err(400, "E303", "monto inválido")
+        return err("E303")
     if acc not in state.accounts:
-        return err(404, "E401", "cuenta inexistente")
+        return err("E401")
     state.accounts[acc] += amount
     return 200, {"status": "recieved", "operacionId": state.new_op("DEPOSITO", None, acc, amount)}
 
@@ -117,16 +122,16 @@ def cmd_deposito(state, acc, amount_text):
 def cmd_transfer(state, src, dst, amount_text):
     amount = parse_amount(amount_text)
     if amount is None:
-        return err(400, "E303", "monto inválido")
+        return err("E303")
     if src == dst:
-        return err(400, "E304", "origen y destino iguales")
+        return err("E304")
     if src not in state.accounts or dst not in state.accounts:
-        return err(404, "E401", "cuenta inexistente")
+        return err("E401")
     same_holder = state.names[src] == state.names[dst]  # limit is skipped between accounts of one holder
     if amount > MAX_TRANSFER and not same_holder:
-        return err(422, "E506", "límite excedido")
+        return err("E506")
     if state.accounts[src] < amount:
-        return err(422, "E507", "saldo insuficiente")
+        return err("E507")
     state.accounts[src] -= amount
     state.accounts[dst] += amount
     return 200, {"status": "recieved", "operacionId": state.new_op("TRANSFER", src, dst, amount)}
@@ -135,7 +140,7 @@ def cmd_transfer(state, src, dst, amount_text):
 def cmd_anula(state, op_id):
     op = state.ops.get(op_id)
     if op is None:
-        return err(404, "E402", "operación inexistente")
+        return err("E402")
     if op["annulled"]:
         return 200, {"ok": False, "motivo": "ya anulada"}
     op["annulled"] = True
