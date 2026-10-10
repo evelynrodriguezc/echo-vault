@@ -115,6 +115,14 @@ Since then `_send` is private and only `probe()` calls it. Ids 1–82 used a wro
 </details>
 
 <details>
+<summary>In production</summary>
+
+- The core is pure: `engine.handle(state, m) -> (status, body)` has no I/O, so it scales horizontally behind any HTTP layer.
+- For more than one instance, move the per-token state (accounts, holders, operations, counters) to Redis or Postgres keyed by token; today it lives in one process, which is why the deploy runs a single instance.
+- `rules.json` plus the canary and spec probe become continuous conformance tests: run them on a schedule against the legacy service and fail the build when the replica drifts.
+</details>
+
+<details>
 <summary>Layout</summary>
 
 | File | Purpose | Rubric criterion |
