@@ -14,7 +14,7 @@
 - Error precedence when one message has several faults (control, arity, unknown command, missing account).
 - `E506` limit: per operation or cumulative? `ANULA` side effects; odd amounts (0, negative, decimals, leading zeros).
 - Hidden commands beyond the 6 seen; case-insensitive commands (`CONSULTa` works).
-- Mid-day behavior change (expected 15:00–16:00).
+- Mid-day behavior change (incident announced for 15:30).
 
 ## Out of scope
 - Response headers (not compared) · concurrency / multiple instances (graders hit one process) · persistence across restarts (reset before each test) · replicating rate limits (infrastructure, not service).
@@ -41,9 +41,9 @@ flowchart LR
 | Railway, single instance | Render free tier | No sleep before grading; one process keeps state consistent |
 
 ## Failure modes
-- Undiscovered behavior → explicit default, marked **supuesto** in the spec.
+- Undiscovered behavior → explicit default, marked **assumed** in the spec.
 - Service changes → canary diff flags it; re-explore only the affected area; redeploy.
-- False claims in the spec cost points → **confirmado** only with ≥ 2 log ids.
+- False claims in the spec cost points → **confirmed** only with ≥ 2 log ids.
 - Rate limit (`X-Frontier-Infra`) → excluded from evidence; prober stays < 10 rps.
 
 ## Evaluation plan
@@ -59,5 +59,5 @@ flowchart LR
 
 ## Cost and latency
 - Runtime: $0 LLM, < 50 ms per step (limit 5 s).
-- Request budget (8k/day/token): recon ~210 · control sweep ~2k · exploration ~3k · canary ~1k · reserve ~1.8k. `probe.py` prints used/remaining after each batch.
+- Request budget (8k/day/token): recon ~210 · control sweep ~2k · exploration ~3k · canary ~1k · hold-out recording ~500 · reserve ~1.3k. `probe.py` prints used/remaining after each batch.
 - LLM spend only for analysis with Claude Code; nothing from the $45 OpenRouter budget planned.

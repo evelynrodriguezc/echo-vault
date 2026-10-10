@@ -5,3 +5,4 @@ node_modules/
 .DS_Store
 NOTAS.md
 material/
+__pycache__/
