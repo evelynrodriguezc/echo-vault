@@ -67,3 +67,6 @@
 ## Block E — long stateful sequences (seqs E-long-00..19, ids 2085–2364)
 - 20/20 sequences (280 requests) replayed exactly by the replica; no new behavior. Covered: 34 deposits/transfers, 20 annulments, 21 E507, 7 E506, same-holder pairs, accounts up to AC-0011, faulty messages mid-sequence (state unchanged).
 - Gap: no negative balance reached in this block (only seen once, `cmd-anula`, −600).
+
+## Block F — adversarial fuzzer (seqs F-fuzz-00..19, ids 2365–2644)
+- 200 mutated messages (field dup/drop/swap, case changes, whitespace, 500-char args, number variants `+5 -5 5.0 05 1e3 0x10 ٥ ５ 5,0`, 10/11-digit amounts, empty fields; control valid/wrong/malformed): no new error code or response shape; replica matches 20/20 sequences, 280/280 requests.
