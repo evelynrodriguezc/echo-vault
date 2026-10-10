@@ -40,7 +40,7 @@ def load_log():
     entries, seqs = {}, {}
     for line in (ROOT / "experimentos.jsonl").open():
         e = json.loads(line)
-        if e["id"] < FIRST_VALID_ID or e.get("infra") == "rate-limit":
+        if e["id"] < FIRST_VALID_ID or e.get("infra"):  # rate limits and client errors are not service behavior
             continue
         entries[e["id"]] = e
         seqs.setdefault(e["seq"], []).append(e)

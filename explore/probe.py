@@ -87,11 +87,19 @@ def _send(method, path, body=None, token=TOKEN, raw_body=None, content_type="app
     elif token:
         req.add_header("Authorization", f"Bearer {token}")
     _last_call = time.time()
+    status, headers = 0, {}
     try:
         with urllib.request.urlopen(req, timeout=10) as r:
-            return r.status, _lower(r.headers), r.read().decode()
+            status, headers = r.status, _lower(r.headers)
+            return status, headers, r.read().decode()
     except urllib.error.HTTPError as e:
-        return e.code, _lower(e.headers), e.read().decode()
+        status, headers = e.code, _lower(e.headers)
+        try:
+            return status, headers, e.read().decode()
+        except OSError as exc:  # status arrived, body did not
+            return status, headers, f"<client error: {exc!r}>"
+    except OSError as exc:  # timeouts, connection errors: still logged by probe()
+        return status, headers, f"<client error: {exc!r}>"
 
 
 def _lower(headers):
@@ -126,6 +134,8 @@ def probe(seq, hipotesis, request=None, method="POST", path="/msg", token=TOKEN,
     }
     if rate_limited:
         entry["infra"] = "rate-limit"
+    if isinstance(entry["response"], str) and entry["response"].startswith("<client error"):
+        entry["infra"] = "client-error"  # not service behavior; excluded from evals like rate limits
     with LOG.open("a") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     return entry, headers

@@ -36,7 +36,7 @@ def load_sequences():
     seqs = defaultdict(list)
     for line in (ROOT / "experimentos.jsonl").open():
         e = json.loads(line)
-        if e["id"] < FIRST_VALID_ID or e.get("infra") == "rate-limit":
+        if e["id"] < FIRST_VALID_ID or e.get("infra"):  # rate limits and client errors are not service behavior
             continue
         if VERSION and e.get("version", "v1") != VERSION:
             continue

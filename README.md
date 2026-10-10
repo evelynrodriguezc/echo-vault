@@ -99,11 +99,12 @@ Contract: `GET /health`, `POST /__reset`, `POST /msg` with `{"m": "CMD;args;cont
 <details>
 <summary>Log completeness</summary>
 
-Every request we sent to the original is in `experimentos.jsonl`, except these 3 (around 10:50, before the prober became the only network path):
+Every request we sent to the original is in `experimentos.jsonl`, except these 4 (the first 3 around 10:50, before the prober became the only network path):
 
 1. `POST /msg` with raw body `{"m":"HALT;x;1"}`: a faulty test of our HALT guard let it through; response not recorded. Never sent again.
 2. `GET /health`: check that the service was still up after (1): `200 {"ok":true}`.
 3. `POST /msg` `{"m":"PING;1"}`: same check: `200 {"pong":true}`, `X-Req: 293`.
+4. 15:25 canary, step 16 of the public examples (`TRANSFER;AC-0002;AC-0001;50000;23`): status 422 arrived but the body timed out after 10 s and the prober crashed before logging it. The prober now logs timeouts and connection errors (`infra: client-error`, excluded from evals); the baseline canary rerun at 15:26 had 0 diffs.
 
 Since then `_send` is private and only `probe()` calls it. Ids 1–82 used a wrong token (excluded from evals). Lines from id 1858 carry a `version` tag (`v1` = before the announced 15:30 change); untagged lines are `v1`.
 </details>
