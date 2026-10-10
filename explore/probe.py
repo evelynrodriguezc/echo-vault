@@ -27,6 +27,7 @@ BASE = ENV["BLACKBOX_URL"].rstrip("/")
 TOKEN = ENV["BLACKBOX_TOKEN"]
 MAX_PER_RUN = int(os.environ.get("PROBE_MAX", "600"))  # hard cap per script run
 MAX_REPEATS = 5  # same request more than this many times in a row = runaway loop
+VERSION = os.environ.get("PROBE_VERSION", "v1")  # service version tag: v1 = before the 15:30 incident
 _last_call = 0.0
 _sent = 0
 _last_key, _repeats = None, 0
@@ -63,8 +64,8 @@ def _is_halt(body, raw_body):
     return "HALT" in text.upper()
 
 
-def send(method, path, body=None, token=TOKEN, raw_body=None, content_type="application/json"):
-    """Send one request; return (status, headers, text). Not logged."""
+def _send(method, path, body=None, token=TOKEN, raw_body=None, content_type="application/json", auth_header=None):
+    """Send one request; return (status, headers, text). Private: only probe() may call it, so every request is logged."""
     global _last_call
     if _is_halt(body, raw_body):
         raise ValueError("blocked: HALT is never sent to the original")
@@ -76,7 +77,9 @@ def send(method, path, body=None, token=TOKEN, raw_body=None, content_type="appl
     req = urllib.request.Request(BASE + path, data=data, method=method)
     if data is not None and content_type:
         req.add_header("Content-Type", content_type)
-    if token:
+    if auth_header is not None:
+        req.add_header("Authorization", auth_header)
+    elif token:
         req.add_header("Authorization", f"Bearer {token}")
     _last_call = time.time()
     try:
@@ -91,9 +94,9 @@ def _lower(headers):
 
 
 def probe(seq, hipotesis, request=None, method="POST", path="/msg", token=TOKEN,
-          raw_body=None, content_type="application/json", conclusion=None):
+          raw_body=None, content_type="application/json", conclusion=None, auth_header=None):
     """Send one request to the original and append it to the experiment log."""
-    status, headers, text = send(method, path, request, token, raw_body, content_type)
+    status, headers, text = _send(method, path, request, token, raw_body, content_type, auth_header)
     rate_limited = headers.get("x-frontier-infra") == "rate-limit"
     try:
         response = json.loads(text)
@@ -110,7 +113,10 @@ def probe(seq, hipotesis, request=None, method="POST", path="/msg", token=TOKEN,
         "conclusion": conclusion,
         "method": method,
         "path": path,
-        "auth": "own" if token == TOKEN else ("none" if not token else "other"),
+        "auth": "custom" if auth_header is not None else ("own" if token == TOKEN else ("none" if not token else "other")),
+        "auth_header": None if auth_header is None else auth_header.replace(TOKEN, "<own>"),
+        "content_type": content_type,
+        "version": VERSION,
         "ts": time.strftime("%Y-%m-%dT%H:%M:%S"),
     }
     if rate_limited:

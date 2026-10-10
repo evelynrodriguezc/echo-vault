@@ -1,6 +1,6 @@
 """Replay logged sequences against the replica in-process and report exact-match rates per category.
 
-Usage: .venv/bin/python evals/run.py [-v]
+Usage: .venv/bin/python evals/run.py [-v] [--version v1]   (lines without a version tag count as v1)
 """
 import json
 import os
@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 import app as replica  # noqa: E402
 
+VERSION = sys.argv[sys.argv.index("--version") + 1] if "--version" in sys.argv else None
 FIRST_VALID_ID = 83  # ids 1-82 were sent with a wrong token (see NOTAS / log)
 TOKENS = {"own": "eval-team-token", "other": "wrong-token-123", "none": None}
 
@@ -34,7 +35,11 @@ def load_sequences():
         e = json.loads(line)
         if e["id"] < FIRST_VALID_ID or e.get("infra") == "rate-limit":
             continue
+        if VERSION and e.get("version", "v1") != VERSION:
+            continue
         seqs[e["seq"]].append(e)
+    if VERSION not in (None, "v1"):
+        return seqs  # the 20 public examples were recorded on the morning version
     examples = [json.loads(l) for l in (ROOT / "material/pruebas/ejemplos.jsonl").open()]
     seqs["ejemplos"] = [{"method": "POST", "path": "/__reset", "auth": "own", "request": None, "status": 200,
                          "response": {"ok": True}}] + [
@@ -44,12 +49,16 @@ def load_sequences():
 
 def send(client, e):
     headers = {}
-    token = TOKENS[e.get("auth", "own")]
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+    if e.get("auth") == "custom":
+        headers["Authorization"] = e["auth_header"].replace("<own>", TOKENS["own"])
+    elif TOKENS[e.get("auth", "own")]:
+        headers["Authorization"] = f"Bearer {TOKENS[e.get('auth', 'own')]}"
+    content_type = e.get("content_type", "application/json")
     req = e["request"]
     if isinstance(req, str):
-        return client.request(e["method"], e["path"], content=req, headers=headers)
+        if content_type:
+            headers["Content-Type"] = content_type
+        return client.request(e["method"], e["path"], content=req.encode(), headers=headers)
     if req is None:
         return client.request(e["method"], e["path"], headers=headers)
     return client.request(e["method"], e["path"], json=req, headers=headers)
