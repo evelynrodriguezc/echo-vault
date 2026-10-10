@@ -5,19 +5,35 @@ Design: [`DESIGN.md`](DESIGN.md) · Evidence index: [`explore/FINDINGS.md`](expl
 
 ## Run the replica
 
+Requires [uv](https://docs.astral.sh/uv/) (it fetches Python ≥ 3.12 if needed). From the repo root:
+
 ```bash
 uv venv .venv && uv pip install --python .venv/bin/python -r requirements.txt httpx pytest
 TEAM_TOKEN=<team token> .venv/bin/uvicorn --app-dir replica app:app --port 8000
+```
+
+Smoke test from another terminal:
+
+```bash
+curl -H "Authorization: Bearer <team token>" localhost:8000/health                        # {"ok":true}
+curl -H "Authorization: Bearer <team token>" -d '{"m":"PING;1"}' localhost:8000/msg       # {"pong":true}
 ```
 
 Contract: `GET /health`, `POST /__reset`, `POST /msg` with `{"m": "CMD;args;control"}`, all with `Authorization: Bearer <TEAM_TOKEN>`. Any other route answers like the original (`404 E404`).
 
 ## Evaluate
 
+Offline, no network and no secrets needed:
+
 ```bash
-.venv/bin/python evals/run.py      # replays every logged sequence + the 20 examples, per-category exact match
+.venv/bin/python evals/run.py        # replays every logged sequence against the replica, per-category exact match
 .venv/bin/python -m pytest -q tests  # isolation: replica never references the original service
 ```
+
+The challenge material (`material/`, with the 20 public examples) is not in the repo; the same 20 requests are in the log as sequences `recon2-replay-1/2`, so `evals/run.py` still covers them. Two scripts need more than the repo:
+
+- `explore/*.py` (prober, canary, spec probe) talk to the original: a `.env` at the repo root with `BLACKBOX_URL` and `BLACKBOX_TOKEN` (participant tokens stop working at 20:00 on event day). Standard library only: `cd explore && python3 canary.py`.
+- `evals/blind_reader.py` calls an LLM through [pi](https://pi.dev) with `OPENROUTER_API_KEY` set; `--reuse` re-evaluates the saved generated code without calling the model.
 
 ## Results (offline replay, `evals/run.py`)
 

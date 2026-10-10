@@ -12,6 +12,9 @@ ROOT = Path(__file__).resolve().parent.parent
 os.environ["TEAM_TOKEN"] = "eval-team-token"
 sys.path.insert(0, str(ROOT / "replica"))
 
+import warnings  # noqa: E402
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)  # starlette TestClient notice
 from fastapi.testclient import TestClient  # noqa: E402
 
 import app as replica  # noqa: E402
@@ -40,7 +43,12 @@ def load_sequences():
         seqs[e["seq"]].append(e)
     if VERSION not in (None, "v1"):
         return seqs  # the 20 public examples were recorded on the morning version
-    examples = [json.loads(l) for l in (ROOT / "material/pruebas/ejemplos.jsonl").open()]
+    examples_file = ROOT / "material/pruebas/ejemplos.jsonl"  # challenge material, not in the repo
+    if not examples_file.exists():
+        print("note: material/ not present; the 20 public examples are still covered by the logged replays "
+              "recon2-replay-1/2 (ids 147-188)")
+        return seqs
+    examples = [json.loads(l) for l in examples_file.open()]
     seqs["ejemplos"] = [{"method": "POST", "path": "/__reset", "auth": "own", "request": None, "status": 200,
                          "response": {"ok": True}}] + [
         {"method": "POST", "path": "/msg", "auth": "own", **e} for e in examples]

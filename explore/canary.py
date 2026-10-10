@@ -15,12 +15,24 @@ sys.path.insert(0, str(ROOT / "replica"))
 import engine  # noqa: E402  (offline prediction only; the replica never calls the original)
 
 
+def public_examples():
+    """The 20 public example messages: from the challenge material if present, else from our logged replay of them."""
+    material = ROOT / "material/pruebas/ejemplos.jsonl"
+    if material.exists():
+        return [e["request"]["m"] for e in map(json.loads, material.open())]
+    log = map(json.loads, (ROOT / "experimentos.jsonl").open())
+    return [e["request"]["m"] for e in log if e["seq"] == "recon2-replay-1" and e["path"] == "/msg"]
+
+
+EXAMPLES = public_examples()
+
+
 def msgs(*bodies):
     return [f"{b};{control(b)}" for b in bodies]
 
 
 SEQUENCES = {
-    "examples": [e["request"]["m"] for e in map(json.loads, (ROOT / "material/pruebas/ejemplos.jsonl").open())],
+    "examples": EXAMPLES,
     "money": msgs("ALTA;Ana", "ALTA;Ana", "ALTA;Beto", "DEPOSITO;AC-0001;300000", "TRANSFER;AC-0001;AC-0002;150000",
                   "TRANSFER;AC-0001;AC-0003;100001", "TRANSFER;AC-0003;AC-0001;5", "ANULA;OP-0001",
                   "CONSULTA;AC-0001", "DEPOSITO;AC-0001;9999999999", "CONSULTA;AC-0002"),
