@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from engine import State, handle
 
 TEAM_TOKEN = os.environ.get("TEAM_TOKEN", "")
+print(f"TEAM_TOKEN set: {bool(TEAM_TOKEN)} (length {len(TEAM_TOKEN)})", flush=True)  # never the value
 ROUTES = {("GET", "/health"), ("POST", "/__reset"), ("POST", "/msg")}
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
