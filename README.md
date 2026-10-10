@@ -82,7 +82,7 @@ Run 2 added blocks A–F: body limit E101, PING skips control, ASCII-only contro
 
 Blind reader: pi + `anthropic/claude-sonnet-5.5`, no tools/network, `SPEC.md` passed as untrusted data. Generated code and mismatches in `evals/blind/`.
 
-Smoke test: `curl -H "Authorization: Bearer <team token>" -d '{"m":"PING;1"}' localhost:8000/msg` → `{"pong":true}`. Demo for the video: `TEAM_TOKEN=<team token> scripts/demo.sh` (resets the deployed replica, so never during an official validation; refuses to target the original). `explore/*.py` needs a `.env` with `BLACKBOX_URL` and `BLACKBOX_TOKEN` (participant tokens stop at 20:00); `evals/blind_reader.py` needs [pi](https://pi.dev) and `OPENROUTER_API_KEY` (`--reuse` skips the model call).
+Smoke test: `curl -H "Authorization: Bearer <team token>" -d '{"m":"PING;1"}' localhost:8000/msg` → `{"pong":true}`. Demo for the video: `TEAM_TOKEN=<team token> scripts/demo.sh`, add `DEMO_STEP=1` to advance with Enter (resets the deployed replica, so never during an official validation; refuses to target the original). `explore/*.py` needs a `.env` with `BLACKBOX_URL` and `BLACKBOX_TOKEN` (participant tokens stop at 20:00); `evals/blind_reader.py` needs [pi](https://pi.dev) and `OPENROUTER_API_KEY` (`--reuse` skips the model call).
 
 Contract: `GET /health`, `POST /__reset`, `POST /msg` with `{"m": "CMD;args;control"}`, all with `Authorization: Bearer <TEAM_TOKEN>`. Deploy: Railway, single instance, only `TEAM_TOKEN` set, start command and healthcheck in `railway.json`.
 </details>

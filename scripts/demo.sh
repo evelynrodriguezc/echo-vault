@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # 2-minute demo against OUR deployed replica (never the original service).
-# Usage: TEAM_TOKEN=... scripts/demo.sh        Optional: DEMO_URL=... DEMO_PAUSE=2
+# Usage: TEAM_TOKEN=... scripts/demo.sh        Optional: DEMO_URL=... DEMO_PAUSE=2, or DEMO_STEP=1 (wait for Enter before each step)
 # Do not run it while an official validation is in progress: it resets the replica's state.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 URL="${DEMO_URL:-https://echo-vault.up.railway.app}"
 PAUSE="${DEMO_PAUSE:-2}"
+STEP_MODE="${DEMO_STEP:-}"
 : "${TEAM_TOKEN:?set TEAM_TOKEN in the environment (it is never printed)}"
 case "$URL" in
   *caja-negra*) echo "Refusing to run: DEMO_URL points to the original service." >&2; exit 1 ;;
@@ -14,9 +15,12 @@ esac
 
 B=$'\e[1m'; DIM=$'\e[2m'; CYAN=$'\e[36m'; GREEN=$'\e[32m'; RED=$'\e[31m'; YELLOW=$'\e[33m'; R=$'\e[0m'
 
-step() { printf '\n%s%s━━━  %s  ━━━%s\n' "$B" "$CYAN" "$1" "$R"; }
+step() {
+  if [ -n "$STEP_MODE" ]; then printf '\n%s[press Enter]%s' "$DIM" "$R"; read -r || true; fi
+  printf '\n%s%s━━━  %s  ━━━%s\n' "$B" "$CYAN" "$1" "$R"
+}
 note() { printf '%s%s%s\n' "$DIM" "$1" "$R"; }
-pause() { sleep "$PAUSE"; }
+pause() { [ -n "$STEP_MODE" ] || sleep "$PAUSE"; }  # step mode waits for Enter in step() instead
 
 # call METHOD PATH [JSON_BODY] — prints the request (token masked) and the response, pretty.
 call() {
