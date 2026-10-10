@@ -1,6 +1,6 @@
 # Frontier Hackathon BOG/26
 
-Event context, rubric and budget in `NOTAS.md` (local, not committed).
+Event context, rubric and budget in `PRIVADO-notas.md` (local, not committed).
 
 ## Scope
 - Work only inside this repo. Don't pull context from other directories.
@@ -12,7 +12,7 @@ Event context, rubric and budget in `NOTAS.md` (local, not committed).
 - Small changes with an explicit definition of done. Don't touch files outside the task's scope.
 - Run tests/evals before every commit. Small commits, imperative messages, no `Co-Authored-By`.
 - Prefer the simple solution. If there's a reasonable alternative, mention it in one line with its trade-off.
-- Log cost and latency per agent run (limited budget, see `NOTAS.md`).
+- Log cost and latency per agent run (limited budget, see `PRIVADO-notas.md`).
 
 ## Deliverables
 - Stable entrypoint documented in `README.md` (how to run, how to evaluate).
