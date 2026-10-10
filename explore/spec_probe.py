@@ -49,7 +49,9 @@ def load_log():
 
 def changes_state(e):
     r = e["response"]
-    return isinstance(r, dict) and ("cuentaId" in r or "operacionId" in r or bool(r.get("anulada")))
+    # v2: an E506 also changes state (it counts toward the E510 lock), so it must be replayed too
+    return isinstance(r, dict) and ("cuentaId" in r or "operacionId" in r or bool(r.get("anulada"))
+                                    or r.get("error") == "E506")
 
 
 def plan(rows, entries, seqs):

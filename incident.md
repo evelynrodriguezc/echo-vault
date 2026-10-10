@@ -65,6 +65,8 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 | 16:02 | K8b–K8g (state transitions, scale) | no further change |
 | 16:0x | Replica updated (`rules.json`: `max_transfer` 50000, E510; `money()` format); `evals/run.py --version v2` 100% | |
 
+| 16:14 | Spec probe (`v2`) rerun for a late rollout | replica matches 100% of its sequences; flagged rows are the superseded ones plus an ERR-E510 replay artifact (probe skipped the E506 lines; fixed) |
+
 Result: 2 confirmed v2 changes (CHG-01 balance as string, CHG-02 limit 50000) and E510 lock as CHG-03, first observed in v2 checks but not provably new (v1 never saw 3 consecutive E506 from one account).
 
 Hypotheses after 0 diffs: (1) v2 is not yet active for participant tokens (staggered rollout or evaluation environment only); (2) the 3 changes sit in paths none of our probes reach: state transitions within a sequence, consequences after errors, repetition effects, or scale thresholds (many accounts or operations per token, very large balances, old annulments).
