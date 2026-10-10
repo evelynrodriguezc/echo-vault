@@ -51,7 +51,7 @@ class State:
 
 
 def distance(a, b):
-    """Levenshtein distance (assumed rule for E301 'sugerencia': distance <= 1)."""
+    """Levenshtein distance; E301 adds 'sugerencia' with the nearest command at distance <= 2."""
     prev = list(range(len(b) + 1))
     for i, ca in enumerate(a, 1):
         cur = [i]
@@ -82,8 +82,8 @@ def handle(state, m):
         if ctl != str(control(body)):
             return err(400, "E202", "control inválido")
     if cmd not in ARITY:
-        near = [c for c in ARITY if distance(cmd, c) <= 1]
-        extra = {"sugerencia": near[0]} if near else {}
+        near = sorted((distance(cmd, c), i, c) for i, c in enumerate(ARITY) if distance(cmd, c) <= 2)
+        extra = {"sugerencia": near[0][2]} if near else {}
         return err(400, "E301", "comando desconocido ", **extra)
     if len(args) != ARITY[cmd]:
         return err(400, "E302", "aridad inválida")

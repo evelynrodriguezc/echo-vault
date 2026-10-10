@@ -51,3 +51,8 @@
 - `,` or `|` instead of `;` → single field → E103 (1943, 1944); `;` and `;;` → E104 (1945, 1946).
 - PING skips both control checks: `PING;XX`, `PING;123`, `PING;1 ` → pong (1954, 1955, 1942); `PING;` → E104 (1953).
 - E301 `sugerencia` also for ` PING` (leading space, 1941) and `ALTA2` (1951). Working rule (probable): suggested when the command is at edit distance ≤ 1 from a known one.
+
+## Block C — command variants (ids 1956–1985)
+- E301 adds `"sugerencia": <command>` when the unknown command is at Levenshtein distance ≤ 2 from a known one: 29/29 observations fit (distance 1: 1957–1960, 1963, 1965, 1967, 1969–1973; distance 2: 1961, 1962, 1964, 1966, 1968, 1985 `AYUDA`→`ANULA`); none for distance ≥ 3 (`LISTA`, `BAJA`, `SALDO`, `SALDOS`… 1978–1984, 971). Tie-break between two commands at equal distance: assumed (list order PING, ALTA, CONSULTA, DEPOSITO, TRANSFER, ANULA).
+- PING with arguments → E302 (1975, 1976).
+- Candidate hidden commands RETIRO, SALDO, EXTRACTO, HISTORIAL, MOVIMIENTOS, BAJA, LISTA, AYUDA → all E301: no hidden command found among them (1978–1985).
