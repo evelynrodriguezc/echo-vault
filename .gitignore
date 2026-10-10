@@ -7,3 +7,4 @@ NOTAS.md
 material/
 __pycache__/
 .probe.lock
+.venv/
