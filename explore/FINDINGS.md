@@ -63,3 +63,7 @@
 - TRANSFER error order: E303 → E304 → E401 → E506 (2050–2054).
 - Ids are literal (no normalization): `ac-0001`, `AC-1`, `AC-00001`, `AC0001`, `AC-0001 ` → E401 (2058–2062); `op-0001`, `OP-1` → E402 (2064, 2065).
 - No cumulative transfer limit: 5 × 100000 in a row pass (2079–2083).
+
+## Block E — long stateful sequences (seqs E-long-00..19, ids 2085–2364)
+- 20/20 sequences (280 requests) replayed exactly by the replica; no new behavior. Covered: 34 deposits/transfers, 20 annulments, 21 E507, 7 E506, same-holder pairs, accounts up to AC-0011, faulty messages mid-sequence (state unchanged).
+- Gap: no negative balance reached in this block (only seen once, `cmd-anula`, −600).
