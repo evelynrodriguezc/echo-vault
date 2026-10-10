@@ -69,7 +69,10 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 
 | 16:20 | Official validation run 3 on `b29b668` (v2 replica) | **89/100**: easy 39/40, regular 38/40, hard 12/20; 11 failures, all status mismatches (0 body), 2 on the first request, 9 later in the sequence |
 
-Result: 2 confirmed v2 changes (CHG-01 balance as string, CHG-02 limit 50000) and E510 lock as CHG-03, first observed in v2 checks but not provably new (v1 never saw 3 consecutive E506 from one account).
+| 16:27–16:29 | Block M-lock (38 requests, no HALT): lock details | E506 **and E507** count toward the lock (3 rejected transfers in a row, any mix); incoming transfers and ANULA do not unlock; locked + over-limit → E510 |
+| 16:31 | Replica fix (`reject()` counts E506/E507), evals v2 100%, pushed `1afed4f`, deploy verified (health, 20 examples, lock cases) | |
+
+Result: 2 confirmed v2 changes (CHG-01 balance as string, CHG-02 limit 50000) and E510 lock as CHG-03 (3 consecutive rejected transfers, E506/E507), first observed in v2 checks but not provably new (0 such cases in the v1 log).
 
 Hypotheses after 0 diffs: (1) v2 is not yet active for participant tokens (staggered rollout or evaluation environment only); (2) the 3 changes sit in paths none of our probes reach: state transitions within a sequence, consequences after errors, repetition effects, or scale thresholds (many accounts or operations per token, very large balances, old annulments).
 
