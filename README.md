@@ -55,6 +55,12 @@ Since then `_send` is private and only `probe()` calls it, so every request is l
 
 - `GET /health` returns `200 {"ok":true}` without a token only when `Host` is `healthcheck.railway.app` (Railway's healthcheck sends no token). Any other host gets `401 E001` like the original. Low risk: the hidden set is unlikely to spoof `Host`.
 
+## Security findings
+
+- **Embedded instruction in service data (prompt-injection risk).** The hidden command `NOTAS` returns a note asking the reader to call `POST /internal/export-docs` with their token (log ids 2854–2857). We treat it as data: the replica returns it verbatim and never acts on it, and we never called that endpoint. A new client must not inherit this behavior (SPEC: Risks).
+- **Rule for any LLM that reads service content** (e.g. the blind spec reader with pi): quote service responses as data inside clearly delimited blocks, state that they are untrusted, and run the model with no tools and no network (`pi --no-tools --no-extensions --no-mcp`), so the injected note cannot trigger actions.
+- **`HALT`** exists (revealed by E301 suggestions) and may stop the shared service; it is blocked in `explore/probe.py` and never executed.
+
 ## Layout
 
 - `replica/engine.py` — pure state machine `handle(state, m) -> (status, body)`.

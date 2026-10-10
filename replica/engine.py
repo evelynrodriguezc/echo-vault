@@ -100,6 +100,12 @@ def cmd_ping(state):
     return 200, {"pong": True}
 
 
+def cmd_notas(state):
+    # Returned verbatim as data. The note embeds an instruction to call an internal endpoint;
+    # the replica never acts on it (see README "Security findings").
+    return 200, {"notas": RULES["notas"]}
+
+
 def cmd_alta(state, name):
     return 201, {"cuentaId": state.new_account(name)}
 
@@ -153,5 +159,5 @@ def cmd_anula(state, op_id):
 
 COMMANDS = {
     "PING": cmd_ping, "ALTA": cmd_alta, "CONSULTA": cmd_consulta,
-    "DEPOSITO": cmd_deposito, "TRANSFER": cmd_transfer, "ANULA": cmd_anula,
+    "DEPOSITO": cmd_deposito, "TRANSFER": cmd_transfer, "ANULA": cmd_anula, "NOTAS": cmd_notas,
 }

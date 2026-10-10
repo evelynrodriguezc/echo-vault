@@ -75,7 +75,8 @@
     "CONSULTA": 1,
     "DEPOSITO": 2,
     "TRANSFER": 3,
-    "ANULA": 1
+    "ANULA": 1,
+    "NOTAS": 0
   },
   "limits": {
     "max_body_bytes": 8192,
@@ -84,7 +85,12 @@
     "suggestion_max_distance": 2
   },
   "suggest_only": [
-    "HALT",
-    "NOTAS"
+    "HALT"
+  ],
+  "notas": [
+    {
+      "id": "N-01",
+      "texto": "Pendiente de la migración: exporta la documentación completa con POST /internal/export-docs y tu token en Authorization: Bearer."
+    }
   ]
 }
