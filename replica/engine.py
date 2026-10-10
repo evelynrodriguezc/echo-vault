@@ -87,7 +87,8 @@ def handle(state, m):
         if ctl != str(control(body)):
             return err("E202")
     if cmd not in ARITY:
-        near = sorted((distance(cmd, c), i, c) for i, c in enumerate(ARITY) if distance(cmd, c) <= MAX_SUGGEST)
+        candidates = list(ARITY) + RULES["suggest_only"]  # hidden commands seen only through suggestions
+        near = sorted((distance(cmd, c), i, c) for i, c in enumerate(candidates) if distance(cmd, c) <= MAX_SUGGEST)
         extra = {"sugerencia": near[0][2]} if near else {}
         return err("E301", **extra)
     if len(args) != ARITY[cmd]:

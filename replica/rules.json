@@ -1,28 +1,90 @@
 {
   "errors": {
-    "E001": [401, "no autorizado"],
-    "E100": [400, "json inválido"],
-    "E101": [413, "cuerpo demasiado grande"],
-    "E102": [400, "falta m"],
-    "E103": [400, "falta control"],
-    "E104": [400, "segmento vacío"],
-    "E201": [400, "control mal formado"],
-    "E202": [400, "control inválido"],
-    "E301": [400, "comando desconocido "],
-    "E302": [400, "aridad inválida"],
-    "E303": [400, "monto inválido"],
-    "E304": [400, "origen y destino iguales"],
-    "E401": [404, "cuenta inexistente"],
-    "E402": [404, "operación inexistente"],
-    "E404": [404, "ruta desconocida"],
-    "E506": [422, "límite excedido"],
-    "E507": [422, "saldo insuficiente"]
+    "E001": [
+      401,
+      "no autorizado"
+    ],
+    "E100": [
+      400,
+      "json inválido"
+    ],
+    "E101": [
+      413,
+      "cuerpo demasiado grande"
+    ],
+    "E102": [
+      400,
+      "falta m"
+    ],
+    "E103": [
+      400,
+      "falta control"
+    ],
+    "E104": [
+      400,
+      "segmento vacío"
+    ],
+    "E201": [
+      400,
+      "control mal formado"
+    ],
+    "E202": [
+      400,
+      "control inválido"
+    ],
+    "E301": [
+      400,
+      "comando desconocido "
+    ],
+    "E302": [
+      400,
+      "aridad inválida"
+    ],
+    "E303": [
+      400,
+      "monto inválido"
+    ],
+    "E304": [
+      400,
+      "origen y destino iguales"
+    ],
+    "E401": [
+      404,
+      "cuenta inexistente"
+    ],
+    "E402": [
+      404,
+      "operación inexistente"
+    ],
+    "E404": [
+      404,
+      "ruta desconocida"
+    ],
+    "E506": [
+      422,
+      "límite excedido"
+    ],
+    "E507": [
+      422,
+      "saldo insuficiente"
+    ]
   },
-  "arity": {"PING": 0, "ALTA": 1, "CONSULTA": 1, "DEPOSITO": 2, "TRANSFER": 3, "ANULA": 1},
+  "arity": {
+    "PING": 0,
+    "ALTA": 1,
+    "CONSULTA": 1,
+    "DEPOSITO": 2,
+    "TRANSFER": 3,
+    "ANULA": 1
+  },
   "limits": {
     "max_body_bytes": 8192,
     "max_transfer": 100000,
     "max_amount": 9999999999,
     "suggestion_max_distance": 2
-  }
+  },
+  "suggest_only": [
+    "HALT",
+    "NOTAS"
+  ]
 }

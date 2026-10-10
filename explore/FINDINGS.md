@@ -70,3 +70,9 @@
 
 ## Block F — adversarial fuzzer (seqs F-fuzz-00..19, ids 2365–2644)
 - 200 mutated messages (field dup/drop/swap, case changes, whitespace, 500-char args, number variants `+5 -5 5.0 05 1e3 0x10 ٥ ５ 5,0`, 10/11-digit amounts, empty fields; control valid/wrong/malformed): no new error code or response shape; replica matches 20/20 sequences, 280/280 requests.
+
+## Block G — suggestion mining (seq G-sugerencias, ids 2689–2751)
+- Names sent with zero arguments only; all answered E301 (nothing executed).
+- Hidden commands revealed by `sugerencia` (leads, never executed): `HALT` (from HALX, HAL, HOLT, HELP, HIST: 2690–2693, 2734) and `NOTAS` (from TOTAL, distance 2: 2710).
+- Replica suggests them too (`suggest_only` in `replica/rules.json`) but does not implement them. Their tie-break position after the 6 known commands is assumed.
+- 56 other banking/admin words: no suggestion → no other hidden command within distance 2 of them.
