@@ -51,3 +51,16 @@ async def catch_all(request: Request, path: str):
         return reply(*err("E102"))
     with lock:
         return reply(*handle(state, m))
+
+
+STANDARD_METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"}
+fastapi_app = app
+
+
+async def app(scope, receive, send):  # noqa: F811
+    """The original answers non-standard methods (e.g. FOO) with 400 and an empty body, before routing."""
+    if scope["type"] == "http" and scope["method"] not in STANDARD_METHODS:
+        await send({"type": "http.response.start", "status": 400, "headers": [(b"content-length", b"0")]})
+        await send({"type": "http.response.body", "body": b""})
+        return
+    await fastapi_app(scope, receive, send)
