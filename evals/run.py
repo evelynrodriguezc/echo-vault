@@ -22,7 +22,7 @@ TOKENS = {"own": "eval-team-token", "other": "wrong-token-123", "none": None}
 
 def category(seq):
     for prefix, name in (("recon", "entrada-auth"), ("format", "integridad"), ("sweep", "integridad"),
-                         ("control", "integridad"), ("precedence", "errores"), ("cmd", "comandos")):
+                         ("control", "integridad"), ("precedence", "errores"), ("cmd", "comandos"), ("holdout", "holdout")):
         if seq.startswith(prefix):
             return name
     return "other"
