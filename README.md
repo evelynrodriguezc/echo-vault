@@ -21,15 +21,25 @@ Contract: `GET /health`, `POST /__reset`, `POST /msg` with `{"m": "CMD;args;cont
 
 ## Results (offline replay, `evals/run.py`)
 
-| Category | Sequences | Requests |
-|---|---|---|
-| Recorded examples | 1/1 | 21/21 |
-| Discovery batches (entrada-auth, integridad, errores, comandos) | 31/31 | 950/950 |
-| Hold-out v1 (random, 100 seqs) | 100/100 | 437/437 |
-| Hold-out v2 (money flows, 30 seqs) — before same-holder rule | 28/30 | 379/388 |
-| Hold-out v2 — after same-holder rule | 30/30 | 388/388 |
+| Category                                                        | Sequences | Requests |
+| --------------------------------------------------------------- | --------- | -------- |
+| Recorded examples                                               | 1/1       | 21/21    |
+| Discovery batches (entrada-auth, integridad, errores, comandos) | 31/31     | 950/950  |
+| Hold-out v1 (random, 100 seqs)                                  | 100/100   | 437/437  |
+| Hold-out v2 (money flows, 30 seqs) — before same-holder rule    | 28/30     | 379/388  |
+| Hold-out v2 — after same-holder rule                            | 30/30     | 388/388  |
 
 Honest finding: hold-out v1 was biased toward errors (100 of 437 responses were `E401`, only 13 successful deposits/transfers, 1 `E506`, no `E507`) because the generator often referenced accounts that did not exist yet. It passed 100% but under-tested money flows. Hold-out v2 fixed that and exposed a real rule we had missed: the transfer limit is skipped between accounts with the same holder name.
+
+## Log completeness
+
+Every request we sent to the original is in `experimentos.jsonl`, except these 3 (around 10:50, before the prober became the only network path):
+
+1. `POST /msg` with raw body `{"m":"HALT;x;1"}` — a faulty test of our own HALT guard let it through; response not recorded. HALT is now blocked in `explore/probe.py` and was never sent again.
+2. `GET /health` — check that the service was still up after (1): `200 {"ok":true}`.
+3. `POST /msg` `{"m":"PING;1"}` — same check: `200 {"pong":true}`, `X-Req: 293`.
+
+Since then `_send` is private and only `probe()` calls it, so every request is logged. Other notes: ids 1–82 were sent with a wrong token (all `401 E001`) and are excluded from evals; lines from id 1858 carry a `version` tag (`v1` = before the announced 15:30 change), untagged lines are `v1`.
 
 ## Layout
 
