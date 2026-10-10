@@ -36,7 +36,7 @@ flowchart LR
 |---|---|---|
 | Deterministic replica, no LLM at runtime | LLM answering in runtime | Exact match tolerates zero variance; $0 per test; < 50 ms |
 | Experiment log is also the test set (offline replay) | Live differential calls on every test run | Saves the 8k/day budget; repeatable; same file feeds spec evidence |
-| Control digit: sweep 00–99 on ~20 messages, fit formula offline | Guess formulas from 20 examples | Offline guesses (byte sum, mod 97, CRC32, XOR) already failed; sweep costs ~2k requests |
+| Control digit: sweep 00–99 on ~20 messages, fit formula offline | Guess formulas from 20 examples | Byte-level guesses (sum, mod 97 over bytes, CRC32, XOR) failed; the sweep showed mod 97 over the text read as a base-10 number; sweep costs ~2k requests |
 | Scripted exploration, hypotheses drafted with Claude Code | Autonomous LLM explorer (pi) | Faster to build and to control in 7 h; each request keeps an explicit hypothesis |
 | Railway, single instance | Render free tier | No sleep before grading; one process keeps state consistent |
 
