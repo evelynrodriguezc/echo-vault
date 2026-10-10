@@ -48,6 +48,21 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 - SPEC section 6 "Cambios durante el día": what changed, since when (canary window), how detected (canary and spec probe ids), evidence ids (v2 lines).
 - README results table: before/after per category, v1 vs v2.
 
+## Timeline (ticket #FR-0153)
+| Time | Event | Result |
+|---|---|---|
+| 14:49 | Pre-incident baseline: canary + spec probe (`v1`) | 0 diffs; 0 of 66 spec rows changed |
+| 15:25 | Baseline canary | crashed on a body read timeout (step 16 of the examples); prober fixed to log client errors |
+| 15:26 | Baseline canary rerun (`v1`) | 0 diffs |
+| 15:30 | Watch canary (`watch`) | 0 diffs |
+| 15:30 | Ticket #FR-0153: provider deployed v2, exactly 3 behaviors changed | — |
+| 15:33–15:41 | v2 checks: canary (40), spec probe (103), block K1–K7 (137), money fuzzer (289) | **569 v2 requests, 0 diffs** against the v1 replica; `X-Req` counter continuous |
+| 15:4x | Watcher relaunched (canary every 5 min, tag `watch`); asked staff whether v2 is active for participant tokens | pending |
+
+Hypotheses after 0 diffs: (1) v2 is not yet active for participant tokens (staggered rollout or evaluation environment only); (2) the 3 changes sit in paths none of our probes reach: state transitions within a sequence, consequences after errors, repetition effects, or scale thresholds (many accounts or operations per token, very large balances, old annulments).
+
+Evidence from official run 2 (12:27, before NOTAS was replicated): easy 39/40, regular 32/40, hard 8/20. Of 21 failures, 13 were status mismatches and 8 body mismatches; 5 failed on the first request and 16 later in the sequence. So most misses are state rules: an earlier request changes a later response, often its status code.
+
 ## Baseline (fill before 15:30)
 | Item | Value |
 |---|---|

@@ -37,11 +37,11 @@ def gen_sequence(rng):
     accounts = list(state.accounts)
     for acc in accounts[:2]:  # fund two accounts so transfers succeed in both directions
         add(f"DEPOSITO;{acc};{rng.choice([1000, 150000, 300000])}")
-    target = rng.randint(6, 12) - len(accounts)  # leave room for the final balance checks
+    target = rng.randint(9, 12) - 2  # leave room for two final balance checks
     while len(msgs) < target:
         a, b = rng.sample(accounts, 2)
         ops = list(state.ops)
-        kind = rng.choices(["TRF", "ANU", "DEP", "CON", "NEG"], [5, 3, 2, 2, 3])[0]
+        kind = rng.choices(["TRF", "ANU", "DEP", "CON", "NEG"], [6, 4, 1, 1, 2])[0]
         if kind == "TRF":
             add(f"TRANSFER;{a};{b};{rng.choice(AMOUNTS)}")
         elif kind == "ANU" and ops:
@@ -55,7 +55,7 @@ def gen_sequence(rng):
             add(f"TRANSFER;{accounts[0]};{other};1")  # transfer from a negative balance
         else:
             add(f"CONSULTA;{a}")
-    for acc in accounts:
+    for acc in accounts[:2]:
         add(f"CONSULTA;{acc}")
     return msgs
 
