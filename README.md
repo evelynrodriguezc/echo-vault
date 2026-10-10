@@ -19,6 +19,8 @@ curl -H "Authorization: Bearer <team token>" localhost:8000/health              
 curl -H "Authorization: Bearer <team token>" -d '{"m":"PING;1"}' localhost:8000/msg       # {"pong":true}
 ```
 
+Demo (used for the video; resets the deployed replica, so never during an official validation; refuses to target the original): `TEAM_TOKEN=<team token> scripts/demo.sh` (`DEMO_URL`, `DEMO_PAUSE` optional).
+
 Contract: `GET /health`, `POST /__reset`, `POST /msg` with `{"m": "CMD;args;control"}`, all with `Authorization: Bearer <TEAM_TOKEN>`. Any other route answers like the original (`404 E404`).
 
 ## Evaluate
