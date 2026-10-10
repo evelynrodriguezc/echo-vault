@@ -43,3 +43,11 @@
 - Content-Type ignored: none, text/plain, form, `charset=latin1` all parse JSON (1885–1888).
 - Routes are exact: `/msg/`, `/MSG`, `//msg`, `/msg/extra`, `/health/`, `HEAD /health` (empty body), `OPTIONS`, `GET /__reset`, `POST /health`, `PUT`/`DELETE /msg`, `GET /` → 404 E404 (1890–1902); query string ignored (`/msg?x=1` → pong, 1892).
 - Auth: exactly `Bearer <token>`; trailing space tolerated (1907); `bearer`/`BEARER` (1904, 1905), double space (1906), `Token`, bare token, `Bearer` alone, `Basic` → 401 (1908, 1910–1913).
+
+## Block B — integrity edge cases (ids 1932–1955)
+- Non-ASCII letters are ignored by the control (not mapped): `ALTA;Lucía` accepts the control of `ALTA;Luca` (1933) and rejects that of `ALTA;Lucia` (1934); same for `ñ` (1935, 1936); emoji name accepted (1950).
+- Only ASCII 0–9 count as digits: arabic-indic digit inside an id is ignored by the control (1948 E202 with the value that counted it); as control → E201 (1947).
+- Tabs, newlines, punctuation, digits-only names are accepted by ALTA (1937, 1938, 1949, 1952). Fields are not trimmed: `CONSULTA; AC-0001` → E401 (1940).
+- `,` or `|` instead of `;` → single field → E103 (1943, 1944); `;` and `;;` → E104 (1945, 1946).
+- PING skips both control checks: `PING;XX`, `PING;123`, `PING;1 ` → pong (1954, 1955, 1942); `PING;` → E104 (1953).
+- E301 `sugerencia` also for ` PING` (leading space, 1941) and `ALTA2` (1951). Working rule (probable): suggested when the command is at edit distance ≤ 1 from a known one.

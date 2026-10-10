@@ -4,7 +4,7 @@
 def to_digits(body):
     digits = ""
     for ch in body.upper():
-        if ch.isdigit():
+        if "0" <= ch <= "9":  # ASCII only: unicode digits are ignored like other symbols
             digits += ch
         elif "A" <= ch <= "Z":
             digits += str(ord(ch) - 64)

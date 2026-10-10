@@ -18,7 +18,7 @@ def err(status, code, mensaje, **extra):
 def to_digits(body):
     digits = ""
     for ch in body.upper():
-        if ch.isdigit():
+        if "0" <= ch <= "9":  # ASCII only: unicode digits are ignored like other symbols
             digits += ch
         elif "A" <= ch <= "Z":
             digits += str(ord(ch) - 64)
@@ -50,6 +50,17 @@ class State:
         return op
 
 
+def distance(a, b):
+    """Levenshtein distance (assumed rule for E301 'sugerencia': distance <= 1)."""
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i]
+        for j, cb in enumerate(b, 1):
+            cur.append(min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (ca != cb)))
+        prev = cur
+    return prev[-1]
+
+
 def parse_amount(text):
     if not re.fullmatch(r"[1-9][0-9]*", text):
         return None
@@ -64,13 +75,15 @@ def handle(state, m):
     if any(f == "" for f in fields):
         return err(400, "E104", "segmento vacío")
     body, ctl = m.rsplit(";", 1)
-    if not re.fullmatch(r"[0-9]{1,2}", ctl):
-        return err(400, "E201", "control mal formado")
     cmd, args = fields[0].upper(), fields[1:-1]
-    if cmd != "PING" and ctl != str(control(body)):
-        return err(400, "E202", "control inválido")
+    if cmd != "PING":  # PING skips both control checks (PING;XX -> pong)
+        if not re.fullmatch(r"[0-9]{1,2}", ctl):
+            return err(400, "E201", "control mal formado")
+        if ctl != str(control(body)):
+            return err(400, "E202", "control inválido")
     if cmd not in ARITY:
-        extra = {"sugerencia": cmd.strip()} if cmd.strip() in ARITY else {}
+        near = [c for c in ARITY if distance(cmd, c) <= 1]
+        extra = {"sugerencia": near[0]} if near else {}
         return err(400, "E301", "comando desconocido ", **extra)
     if len(args) != ARITY[cmd]:
         return err(400, "E302", "aridad inválida")
