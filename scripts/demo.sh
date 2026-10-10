@@ -56,6 +56,12 @@ note "control = 98 − (100·N mod 97), N = $BODY uppercased, A=1…Z=26, separa
 call POST /msg "{\"m\":\"$BODY;$CTL\"}"
 pause
 
+step "2b. Deposit and read the balance — v2 returns it as a string with 2 decimals"
+note "since the 15:30 change (v2): 12345 is shown as \"123.45\""
+call POST /msg "{\"m\":\"DEPOSITO;AC-0001;12345;$(control 'DEPOSITO;AC-0001;12345')\"}"
+call POST /msg "{\"m\":\"CONSULTA;AC-0001;$(control 'CONSULTA;AC-0001')\"}"
+pause
+
 step "3. Same message, wrong control"
 note "integrity check runs before the command: wrong value → E202"
 call POST /msg "{\"m\":\"$BODY;$WRONG\"}"
