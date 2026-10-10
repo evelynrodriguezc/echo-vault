@@ -14,8 +14,11 @@ MIN_INTERVAL = 0.11  # stay under 10 requests per second
 
 
 def _load_env():
+    path = ROOT / ".env"
+    if not path.exists():
+        raise SystemExit("explore/ needs a .env at the repo root with BLACKBOX_URL and BLACKBOX_TOKEN (see README)")
     env = {}
-    for line in (ROOT / ".env").read_text().splitlines():
+    for line in path.read_text().splitlines():
         if "=" in line and not line.lstrip().startswith("#"):
             key, value = line.split("=", 1)
             env[key.strip()] = value.strip()
@@ -23,6 +26,8 @@ def _load_env():
 
 
 ENV = _load_env()
+if not ENV.get("BLACKBOX_URL") or not ENV.get("BLACKBOX_TOKEN"):
+    raise SystemExit(".env must define BLACKBOX_URL and BLACKBOX_TOKEN (see README)")
 BASE = ENV["BLACKBOX_URL"].rstrip("/")
 TOKEN = ENV["BLACKBOX_TOKEN"]
 MAX_PER_RUN = int(os.environ.get("PROBE_MAX", "600"))  # hard cap per script run
