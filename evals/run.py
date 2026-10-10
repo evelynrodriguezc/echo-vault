@@ -20,7 +20,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 import app as replica  # noqa: E402
 
 VERSION = sys.argv[sys.argv.index("--version") + 1] if "--version" in sys.argv else None
-FIRST_VALID_ID = 83  # ids 1-82 were sent with a wrong token (see NOTAS / log)
+FIRST_VALID_ID = 83  # ids 1-82 were sent with a wrong token (see README, Log completeness)
 TOKENS = {"own": "eval-team-token", "other": "wrong-token-123", "none": None}
 
 
