@@ -6,8 +6,8 @@
 - Graded by 100 hidden sequences (40 single, 45 of 2–5, 15 of 6–12) against the **20:00 version**; the service may change during the day.
 
 ## Assumptions
-- **Verified in recon:** deterministic after reset (20 examples replayed twice, 0 diffs, log 148–188); unknown route → 404 `E404` before auth (192–194, 204, 208); bad/no token → 401 `E001`, including `/health` (201–203, 205–207); body errors `E100` / `E102` / `E103` (195–198); `X-Req` only on authorized `/msg`, never reset (not compared, ignored).
-- **Still assumed:** control digit depends only on the message text; `AC-`/`OP-` counters restart on reset; only the team token is valid in the replica.
+- **Verified in recon:** deterministic after reset (20 examples replayed twice, 0 diffs, log 148–188); unknown route → 404 `E404` before auth (192–194, 204, 208); bad/no token → 401 `E001`, including `/health` (201–203, 205–207); body errors `E100` / `E102` / `E103` (195–198); `X-Req` only on authorized `/msg`, never reset (not compared, ignored). Control digit is mod 97 over the text read in base 10, case-insensitive; one valid value per message, checked before account existence (325, 429–450, 548, 821, 914, 930, 946).
+- **Still assumed:** exact letter/separator mapping of the control digit; `AC-`/`OP-` counters restart on reset; only the team token is valid in the replica.
 
 ## Hard cases
 - Control-digit algorithm (`E201` malformed vs `E202` invalid) — blocks every other test.
