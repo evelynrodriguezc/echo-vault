@@ -22,7 +22,7 @@ def reply(status, body):
     return JSONResponse(body, status_code=status)
 
 
-@app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"])
+@app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"])
 async def catch_all(request: Request, path: str):
     global state
     route = (request.method, "/" + path)

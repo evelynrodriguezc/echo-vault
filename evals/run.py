@@ -17,6 +17,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 import app as replica  # noqa: E402
 
 VERSION = sys.argv[sys.argv.index("--version") + 1] if "--version" in sys.argv else None
+STANDARD_METHODS = {"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"}
 FIRST_VALID_ID = 83  # ids 1-82 were sent with a wrong token (see NOTAS / log)
 TOKENS = {"own": "eval-team-token", "other": "wrong-token-123", "none": None}
 
@@ -37,6 +38,8 @@ def load_sequences():
             continue
         if VERSION and e.get("version", "v1") != VERSION:
             continue
+        if e["method"] not in STANDARD_METHODS:
+            continue  # non-standard methods (e.g. FOO -> 400, empty body) are rejected by the hosting edge, not the service
         seqs[e["seq"]].append(e)
     if VERSION not in (None, "v1"):
         return seqs  # the 20 public examples were recorded on the morning version
