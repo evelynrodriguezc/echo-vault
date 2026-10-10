@@ -39,5 +39,5 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 |---|---|
 | Replica commit | `9c7d5fe` (rules in `replica/rules.json`) |
 | Local evals | 100% in all 10 categories (2,500+ logged requests replayed) |
-| Official validation | #1 at 11:50: 64/100 (before blocks A–F fixes) |
+| Official validation | #1 at 11:50: 64/100 (before blocks A–F fixes) · #2 at ~12:25: 79/100 (`63ff241`) |
 | Canary v1 | 12:17, 0 diffs (seqs `canary-1217-*`, 37 requests) |
