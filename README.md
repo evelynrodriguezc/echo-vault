@@ -3,6 +3,14 @@
 Exact replica of an undocumented account service, rebuilt from black-box experiments.
 Design: [`DESIGN.md`](DESIGN.md) · Evidence index: [`explore/FINDINGS.md`](explore/FINDINGS.md) · Experiment log: [`experimentos.jsonl`](experimentos.jsonl)
 
+## Engineering highlights
+
+1. **Hidden set: 64 → 79 → pending (after incident), out of 100.** Our local evals were at 100% on both runs because they replay our own experiments, so they share the replica's blind spots. The gap measured coverage, not code; targeted exploration (blocks A–H) closed most of it. [Results](#results-offline-replay-evalsrunpy)
+2. **Prompt injection in service data, detected and not followed.** The hidden command `NOTAS` returns a note asking the reader to call `POST /internal/export-docs` with their token. We replicate it verbatim as data, never called the endpoint, and run any LLM that reads service output with no tools or network. [Security findings](#security-findings) · log ids 2854–2857
+3. **1 unsafe request, reported.** A faulty test of our own guard sent one `HALT` to the shared original (it stayed up). `HALT` is now blocked at the only network path, and the 3 requests that never reached the log are listed. [Log completeness](#log-completeness) · [`explore/probe.py`](explore/probe.py)
+4. **Spec rebuilt blind: 99.97% for $0.04.** A model given only `SPEC.md` (no tools, no network) wrote a reimplementation that matches 2980 of 2981 logged requests; its first run exposed 3 spec gaps we then fixed. [Blind spec check](#blind-spec-check)
+5. **Check digit found by sweep, confirmed by prediction.** Sweeping control values 0–99 on messages that differ by one character showed weights of −3 per unit mod 97, giving `98 − (100·N mod 97)`; it matches all 643 logged observations and predicted 3 unseen messages correctly. [Control digit evidence](explore/FINDINGS.md#control-digit-integrity) · log ids 948–953
+
 ## Run the replica
 
 Requires [uv](https://docs.astral.sh/uv/) (it fetches Python ≥ 3.12 if needed). From the repo root:
