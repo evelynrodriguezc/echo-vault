@@ -2,7 +2,7 @@
 
 Exact replica of an undocumented account service, rebuilt from black-box experiments.
 
-[Deploy](https://echo-vault.up.railway.app) · Video (pending) · [DESIGN.pdf](docs/DESIGN.pdf) · [SPEC.md](SPEC.md) · [experimentos.jsonl](experimentos.jsonl)
+[Deploy (API, token required)](https://echo-vault.up.railway.app) · [Video](https://youtu.be/kfs5qeasMbQ) · [Pitch](docs/pitch.png) · [DESIGN.pdf](docs/DESIGN.pdf) · [SPEC.md](SPEC.md) · [experimentos.jsonl](experimentos.jsonl)
 
 ## Results
 
@@ -11,10 +11,10 @@ Exact replica of an undocumented account service, rebuilt from black-box experim
 | Hidden set (100 tests, 3 runs allowed), run 1 (11:50, `0da9042`) | 64/100 |
 | Hidden set, run 2 (~12:25, `63ff241`) | 79/100 |
 | Hidden set, run 3 (16:20, `b29b668`, v2 replica) | 89/100 |
-| Local evals (`evals/run.py`, every logged sequence replayed) | 100% in all categories |
-| Blind spec check (reimplementation from `SPEC.md` only) | 99.97% (2980/2981 requests) |
+| Local evals (`evals/run.py --version v2`, every logged v2 sequence replayed) | 100% (v1 sequences drop where v2 changed behavior, as expected) |
+| Blind spec check (reimplementation from `SPEC.md` only, v1 spec at 12:44) | 99.97% (2980/2981 requests) |
 | LLM cost (OpenRouter) | $0.082 blind reader + ~$0.005 model checks; $0 at runtime |
-| Requests to the original | 2,859 / 8,000 |
+| Requests to the original | 4,387 / 8,000 (4,383 logged + 4 listed in Log completeness) |
 
 ## Highlights
 
@@ -60,6 +60,36 @@ Railway builds from requirements.txt + railway.json; Python version pinned in .p
 ## Incident
 
 Ticket #FR-0153 (15:30): v2 changed 3 behaviors; it answered our token from 15:55:28. Confirmed: balance as a string with 2 decimals, TRANSFER limit lowered to 50000. Also first observed in v2 checks: E510 account lock after 3 consecutive rejected transfers (E506/E507; not fully provable as new). Replica updated through `rules.json` and the engine, verified on the deploy, run 3 = 89/100. Details: [incident.md](incident.md), SPEC section 6.
+
+## Timeline
+
+Times from commit and log timestamps (Bogotá).
+
+| Time | Event | Result |
+|---|---|---|
+| 10:37 | Recon: the 20 public examples replayed twice | Deterministic, 0 diffs |
+| 10:50 | HALT guard added; one HALT leaked from a faulty guard test | Service stayed up; reported in Log completeness |
+| 11:10 | Check-digit formula tested on 3 unseen messages | 3/3 accepted; matches 643 observations |
+| before 12:00 | Design doc and diagram submitted | — |
+| 11:25 | Replica skeleton and offline evals | 100% on logged sequences |
+| 11:47 | Hold-out v2 (money flows) | Found the same-holder rule; 28/30 → 30/30 |
+| 11:50 | Validation run 1 | 64/100 |
+| 11:57–12:06 | Blocks A–F (entry, integrity, commands, assumptions, long sequences, fuzzer) | 6 replica fixes |
+| ~12:25 | Validation run 2 | 79/100 |
+| 12:30–12:35 | Suggestion mining reveals `NOTAS`; replicated | Prompt injection documented |
+| 12:40–12:44 | `SPEC.md`; blind rebuild from the spec | 99.97% of the log |
+| 15:30 | Ticket #FR-0153: provider deploys v2 | — |
+| 15:55 | First v2 answer to our token | Balance as string, limit 50000, E510 lock |
+| 16:04 | v2 replica deployed and verified | Evals v2 100% |
+| 16:20 | Validation run 3 | 89/100 |
+| 16:30 | Block M-lock: E507 also counts toward the lock | Fixed, deployed and verified 16:31 |
+
+## How I used AI
+
+- Claude Code (Opus 5.5) wrote the prober, replica, evals and docs, and proposed every exploration batch with its request count before it ran.
+- pi with Claude Sonnet 5.5 (OpenRouter, no tools, no network) rebuilt the service from `SPEC.md` alone; there is no LLM at runtime.
+- I decided the challenge, approved each batch before it touched the original, set the HALT block and its rule, chose not to follow the `NOTAS` note, and chose when to spend each validation run.
+- LLM cost on OpenRouter: $0.082 for the blind reader plus ~$0.005 for model checks; Claude Code usage is not included.
 
 ## What didn't work
 
