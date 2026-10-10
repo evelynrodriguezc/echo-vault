@@ -67,6 +67,10 @@
     "E507": [
       422,
       "saldo insuficiente"
+    ],
+    "E510": [
+      423,
+      "cuenta bloqueada"
     ]
   },
   "arity": {
@@ -80,9 +84,10 @@
   },
   "limits": {
     "max_body_bytes": 8192,
-    "max_transfer": 100000,
+    "max_transfer": 50000,
     "max_amount": 9999999999,
-    "suggestion_max_distance": 2
+    "suggestion_max_distance": 2,
+    "lock_after_consecutive_e506": 3
   },
   "suggest_only": [
     "HALT"

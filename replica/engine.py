@@ -11,6 +11,7 @@ RULES = json.loads((Path(__file__).parent / "rules.json").read_text())  # error 
 MAX_TRANSFER = RULES["limits"]["max_transfer"]
 MAX_AMOUNT = RULES["limits"]["max_amount"]
 MAX_SUGGEST = RULES["limits"]["suggestion_max_distance"]
+LOCK_AFTER = RULES["limits"]["lock_after_consecutive_e506"]  # v2: consecutive E506 that lock an account
 
 ARITY = RULES["arity"]  # order matters: tie-break for E301 suggestions
 
@@ -41,6 +42,8 @@ class State:
     def __init__(self):
         self.accounts = {}  # id -> balance
         self.names = {}  # id -> holder name given in ALTA
+        self.e506_streak = {}  # account -> consecutive E506 as transfer source (v2)
+        self.lock_attempts = {}  # locked account -> blocked transfer attempts so far (v2)
         self.ops = {}  # id -> {"kind", "src", "dst", "amount", "annulled"}
 
     def new_account(self, name):
@@ -110,10 +113,16 @@ def cmd_alta(state, name):
     return 201, {"cuentaId": state.new_account(name)}
 
 
+def money(cents):
+    """v2: balances are strings in units with 2 decimals (12345 -> "123.45", -600 -> "-6.00")."""
+    sign = "-" if cents < 0 else ""
+    return f"{sign}{abs(cents) // 100}.{abs(cents) % 100:02d}"
+
+
 def cmd_consulta(state, acc):
     if acc not in state.accounts:
         return err("E401")
-    return 200, {"cuenta_id": acc, "saldo": state.accounts[acc]}
+    return 200, {"cuenta_id": acc, "saldo": money(state.accounts[acc])}
 
 
 def cmd_deposito(state, acc, amount_text):
@@ -123,6 +132,8 @@ def cmd_deposito(state, acc, amount_text):
     if acc not in state.accounts:
         return err("E401")
     state.accounts[acc] += amount
+    state.lock_attempts.pop(acc, None)  # v2: a deposit unlocks the account
+    state.e506_streak[acc] = 0
     return 200, {"status": "recieved", "operacionId": state.new_op("DEPOSITO", None, acc, amount)}
 
 
@@ -134,11 +145,18 @@ def cmd_transfer(state, src, dst, amount_text):
         return err("E304")
     if src not in state.accounts or dst not in state.accounts:
         return err("E401")
+    if src in state.lock_attempts:  # v2: locked source account, checked before limit and balance
+        state.lock_attempts[src] += 1
+        return err("E510", intentos=state.lock_attempts[src])
     same_holder = state.names[src] == state.names[dst]  # limit is skipped between accounts of one holder
     if amount > MAX_TRANSFER and not same_holder:
+        state.e506_streak[src] = state.e506_streak.get(src, 0) + 1
+        if state.e506_streak[src] >= LOCK_AFTER:
+            state.lock_attempts[src] = 0
         return err("E506")
     if state.accounts[src] < amount:
         return err("E507")
+    state.e506_streak[src] = 0  # a successful transfer resets the streak
     state.accounts[src] -= amount
     state.accounts[dst] += amount
     return 200, {"status": "recieved", "operacionId": state.new_op("TRANSFER", src, dst, amount)}

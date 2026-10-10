@@ -20,13 +20,21 @@ from fastapi.testclient import TestClient  # noqa: E402
 import app as replica  # noqa: E402
 
 VERSION = sys.argv[sys.argv.index("--version") + 1] if "--version" in sys.argv else None
+V2_FROM_ID = 3756  # first sequence answered by v2 (K8a-E506, starts 15:55:27); lines tagged v2/watch before it got v1 answers
+
+
+def effective_version(e):
+    """Version that actually answered: the send-time tag is not enough because v2 went live at 15:55:28."""
+    return "v2" if e["id"] >= V2_FROM_ID else "v1"
+
+
 FIRST_VALID_ID = 83  # ids 1-82 were sent with a wrong token (see README, Log completeness)
 TOKENS = {"own": "eval-team-token", "other": "wrong-token-123", "none": None}
 
 
 def category(seq):
     for prefix, name in (("recon", "entrada-auth"), ("format", "integridad"), ("sweep", "integridad"),
-                         ("control", "integridad"), ("precedence", "errores"), ("cmd", "comandos"), ("A-", "entrada-auth"), ("B-", "integridad"), ("C-", "comandos"), ("G-", "comandos"), ("D-", "supuestos"), ("E-", "secuencias-largas"), ("F-", "fuzzer"), ("K", "v2-checks"), ("H-", "estado-reglas"), ("N-", "comandos"), ("canary", "canario"), ("specprobe", "spec-probe"), ("holdout2", "holdout-money"), ("holdout", "holdout")):
+                         ("control", "integridad"), ("precedence", "errores"), ("cmd", "comandos"), ("A-", "entrada-auth"), ("B-", "integridad"), ("C-", "comandos"), ("G-", "comandos"), ("D-", "supuestos"), ("E-", "secuencias-largas"), ("F-", "fuzzer"), ("K", "v2-checks"), ("L", "v2-checks"), ("H-", "estado-reglas"), ("N-", "comandos"), ("canary", "canario"), ("specprobe", "spec-probe"), ("holdout2", "holdout-money"), ("holdout", "holdout")):
         if seq.startswith(prefix):
             return name
     return "other"
@@ -38,7 +46,7 @@ def load_sequences():
         e = json.loads(line)
         if e["id"] < FIRST_VALID_ID or e.get("infra"):  # rate limits and client errors are not service behavior
             continue
-        if VERSION and e.get("version", "v1") != VERSION:
+        if VERSION and effective_version(e) != VERSION:
             continue
         seqs[e["seq"]].append(e)
     if VERSION not in (None, "v1"):

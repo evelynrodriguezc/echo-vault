@@ -57,7 +57,15 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 | 15:30 | Watch canary (`watch`) | 0 diffs |
 | 15:30 | Ticket #FR-0153: provider deployed v2, exactly 3 behaviors changed | — |
 | 15:33–15:41 | v2 checks: canary (40), spec probe (103), block K1–K7 (137), money fuzzer (289) | **569 v2 requests, 0 diffs** against the v1 replica; `X-Req` counter continuous |
-| 15:4x | Watcher relaunched (canary every 5 min, tag `watch`); asked staff whether v2 is active for participant tokens | pending |
+| 15:4x | Watcher relaunched (canary every 5 min, tag `watch`); asked staff whether v2 is active for participant tokens | organizers said in chat that v2 had only just been launched |
+| 15:55:27–28 | **First v2 answer** (K8a block, id 3756): balance as string, then E510 lock | the 569 earlier "v2" requests had v1 answers; evals use id 3756 as the v1/v2 boundary |
+| 15:57 | Watch canary: 10 diffs; confirmation canary (`v2`) identical | TRANSFER of 100000 now E506 |
+| 15:58 | Spec probe (`v2`): 4 of 66 rows changed (CMD-03, CMD-06, CMD-08, RISK-04) | |
+| 16:01 | Block L: new limit by binary search (50000 ok, 50001 E506), same-holder exemption kept; E510 details | E510 before E507; deposit unlocks |
+| 16:02 | K8b–K8g (state transitions, scale) | no further change |
+| 16:0x | Replica updated (`rules.json`: `max_transfer` 50000, E510; `money()` format); `evals/run.py --version v2` 100% | |
+
+Result: 2 confirmed v2 changes (CHG-01 balance as string, CHG-02 limit 50000) and E510 lock as CHG-03, first observed in v2 checks but not provably new (v1 never saw 3 consecutive E506 from one account).
 
 Hypotheses after 0 diffs: (1) v2 is not yet active for participant tokens (staggered rollout or evaluation environment only); (2) the 3 changes sit in paths none of our probes reach: state transitions within a sequence, consequences after errors, repetition effects, or scale thresholds (many accounts or operations per token, very large balances, old annulments).
 
