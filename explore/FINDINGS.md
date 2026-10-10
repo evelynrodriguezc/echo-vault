@@ -24,3 +24,14 @@
 
 ## Unknown command suggestion
 - `consulta ` (trailing space) → E301 with extra field `"sugerencia": "CONSULTA"` (979); exact names without near match give no `sugerencia` (971, 980). Matching rule (edit distance? trim?) still unknown.
+
+## Commands (batch `cmd-*`, ids ~983–1032)
+- ALTA: any name (duplicates, spaces, digits, 40 chars) → 201 `cuentaId` AC-000n sequential; new balance 0.
+- Amounts: E303 `monto inválido` for 0, negative, decimal, leading zeros, non-numeric, 999999999999; checked before account existence (DEPOSITO;AC-0009;abc → E303).
+- Failed operations and ANULA do not consume `OP-` ids.
+- TRANSFER: same source and destination → E304; missing account → E401; E506 checked before E507.
+- ANULA: reverses the effect (balance may go negative: deposit annulled after part was moved → −600); nonexistent op or account id → E402; second ANULA → 200 `{"ok": false, "motivo": "ya anulada"}`.
+
+## Transfer limit and same holder (hold-out v2)
+- Limit is per operation: > 100000 → E506 (100000 passes, two of 100000 in a row pass: 1011, 1012).
+- **Not applied between accounts with the same holder name**: 29/29 large transfers between different names → E506; 3/3 between two accounts named "Beto" skip the limit: 1529, 1530 (→ E507, insufficient) and 1598 (100001 → OK). Confidence: probable (2 sequences). Name comparison case-sensitivity untested.

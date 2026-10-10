@@ -19,6 +19,18 @@ Contract: `GET /health`, `POST /__reset`, `POST /msg` with `{"m": "CMD;args;cont
 .venv/bin/python -m pytest -q tests  # isolation: replica never references the original service
 ```
 
+## Results (offline replay, `evals/run.py`)
+
+| Category | Sequences | Requests |
+|---|---|---|
+| Recorded examples | 1/1 | 21/21 |
+| Discovery batches (entrada-auth, integridad, errores, comandos) | 31/31 | 950/950 |
+| Hold-out v1 (random, 100 seqs) | 100/100 | 437/437 |
+| Hold-out v2 (money flows, 30 seqs) — before same-holder rule | 28/30 | 379/388 |
+| Hold-out v2 — after same-holder rule | 30/30 | 388/388 |
+
+Honest finding: hold-out v1 was biased toward errors (100 of 437 responses were `E401`, only 13 successful deposits/transfers, 1 `E506`, no `E507`) because the generator often referenced accounts that did not exist yet. It passed 100% but under-tested money flows. Hold-out v2 fixed that and exposed a real rule we had missed: the transfer limit is skipped between accounts with the same holder name.
+
 ## Layout
 
 - `replica/engine.py` — pure state machine `handle(state, m) -> (status, body)`.

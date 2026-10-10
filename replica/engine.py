@@ -32,11 +32,13 @@ def control(body):
 class State:
     def __init__(self):
         self.accounts = {}  # id -> balance
+        self.names = {}  # id -> holder name given in ALTA
         self.ops = {}  # id -> {"kind", "src", "dst", "amount", "annulled"}
 
-    def new_account(self):
+    def new_account(self, name):
         acc = f"AC-{len(self.accounts) + 1:04d}"
         self.accounts[acc] = 0
+        self.names[acc] = name
         return acc
 
     def new_op(self, kind, src, dst, amount):
@@ -77,7 +79,7 @@ def cmd_ping(state):
 
 
 def cmd_alta(state, name):
-    return 201, {"cuentaId": state.new_account()}
+    return 201, {"cuentaId": state.new_account(name)}
 
 
 def cmd_consulta(state, acc):
@@ -104,7 +106,8 @@ def cmd_transfer(state, src, dst, amount_text):
         return err(400, "E304", "origen y destino iguales")
     if src not in state.accounts or dst not in state.accounts:
         return err(404, "E401", "cuenta inexistente")
-    if amount > MAX_TRANSFER:
+    same_holder = state.names[src] == state.names[dst]  # limit is skipped between accounts of one holder
+    if amount > MAX_TRANSFER and not same_holder:
         return err(422, "E506", "límite excedido")
     if state.accounts[src] < amount:
         return err(422, "E507", "saldo insuficiente")
