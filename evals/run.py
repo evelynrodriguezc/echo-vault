@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT / "replica"))
 
 import warnings  # noqa: E402
 
-warnings.filterwarnings("ignore", category=DeprecationWarning)  # starlette TestClient notice
+warnings.filterwarnings("ignore", message="Using `httpx` with `starlette.testclient`")  # cosmetic notice
 from fastapi.testclient import TestClient  # noqa: E402
 
 import app as replica  # noqa: E402
