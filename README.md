@@ -41,6 +41,10 @@ Every request we sent to the original is in `experimentos.jsonl`, except these 3
 
 Since then `_send` is private and only `probe()` calls it, so every request is logged. Other notes: ids 1–82 were sent with a wrong token (all `401 E001`) and are excluded from evals; lines from id 1858 carry a `version` tag (`v1` = before the announced 15:30 change), untagged lines are `v1`.
 
+## Known deviations
+
+- `GET /health` returns `200 {"ok":true}` without a token only when `Host` is `healthcheck.railway.app` (Railway's healthcheck sends no token). Any other host gets `401 E001` like the original. Low risk: the hidden set is unlikely to spoof `Host`.
+
 ## Layout
 
 - `replica/engine.py` — pure state machine `handle(state, m) -> (status, body)`.
@@ -50,4 +54,4 @@ Since then `_send` is private and only `probe()` calls it, so every request is l
 
 ## Deploy
 
-Railway, single instance. Only `TEAM_TOKEN` is set as a variable. Start command from `Procfile`.
+Railway, single instance. Only `TEAM_TOKEN` is set as a variable. Start command and healthcheck (`/health`) in `railway.json`.
