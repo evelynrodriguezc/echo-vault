@@ -11,6 +11,7 @@ from engine import State, handle
 TEAM_TOKEN = os.environ.get("TEAM_TOKEN", "")
 print(f"TEAM_TOKEN set: {bool(TEAM_TOKEN)} (length {len(TEAM_TOKEN)})", flush=True)  # never the value
 ROUTES = {("GET", "/health"), ("POST", "/__reset"), ("POST", "/msg")}
+MAX_BODY = 8192  # bytes; larger raw body -> 413 E101 (checked after route and auth)
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 state = State()
@@ -27,7 +28,7 @@ async def catch_all(request: Request, path: str):
     route = (request.method, "/" + path)
     if route not in ROUTES:
         return reply(404, {"error": "E404", "mensaje": "ruta desconocida"})
-    if not TEAM_TOKEN or request.headers.get("authorization") != f"Bearer {TEAM_TOKEN}":
+    if not TEAM_TOKEN or request.headers.get("authorization", "").strip() != f"Bearer {TEAM_TOKEN}":
         return reply(401, {"error": "E001", "mensaje": "no autorizado"})
     if route == ("GET", "/health"):
         return reply(200, {"ok": True})
@@ -35,8 +36,11 @@ async def catch_all(request: Request, path: str):
         with lock:
             state = State()
         return reply(200, {"ok": True})
+    raw = await request.body()
+    if len(raw) > MAX_BODY:
+        return reply(413, {"error": "E101", "mensaje": "cuerpo demasiado grande"})
     try:
-        payload = json.loads(await request.body())
+        payload = json.loads(raw)
     except ValueError:
         return reply(400, {"error": "E100", "mensaje": "json inválido"})
     m = payload.get("m") if isinstance(payload, dict) else None

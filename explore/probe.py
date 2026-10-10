@@ -40,9 +40,9 @@ except BlockingIOError:
     raise SystemExit("another probing script is running; wait for it to finish")
 
 
-def _guard_batch(method, path, body, raw_body):
+def _guard_batch(method, path, body, raw_body, auth_header=None):
     global _sent, _last_key, _repeats
-    key = (method, path, raw_body if raw_body is not None else json.dumps(body, sort_keys=True))
+    key = (method, path, raw_body if raw_body is not None else json.dumps(body, sort_keys=True), auth_header)
     _repeats = _repeats + 1 if key == _last_key else 1
     _last_key = key
     if _repeats > MAX_REPEATS:
@@ -69,7 +69,7 @@ def _send(method, path, body=None, token=TOKEN, raw_body=None, content_type="app
     global _last_call
     if _is_halt(body, raw_body):
         raise ValueError("blocked: HALT is never sent to the original")
-    _guard_batch(method, path, body, raw_body)
+    _guard_batch(method, path, body, raw_body, auth_header)
     wait = MIN_INTERVAL - (time.time() - _last_call)
     if wait > 0:
         time.sleep(wait)

@@ -23,7 +23,7 @@ TOKENS = {"own": "eval-team-token", "other": "wrong-token-123", "none": None}
 
 def category(seq):
     for prefix, name in (("recon", "entrada-auth"), ("format", "integridad"), ("sweep", "integridad"),
-                         ("control", "integridad"), ("precedence", "errores"), ("cmd", "comandos"), ("holdout2", "holdout-money"), ("holdout", "holdout")):
+                         ("control", "integridad"), ("precedence", "errores"), ("cmd", "comandos"), ("A-", "entrada-auth"), ("holdout2", "holdout-money"), ("holdout", "holdout")):
         if seq.startswith(prefix):
             return name
     return "other"
@@ -61,7 +61,8 @@ def send(client, e):
         return client.request(e["method"], e["path"], content=req.encode(), headers=headers)
     if req is None:
         return client.request(e["method"], e["path"], headers=headers)
-    return client.request(e["method"], e["path"], json=req, headers=headers)
+    headers["Content-Type"] = content_type or "application/json"
+    return client.request(e["method"], e["path"], content=json.dumps(req).encode(), headers=headers)  # same bytes as the prober
 
 
 def same(resp, e):

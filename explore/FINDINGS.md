@@ -35,3 +35,11 @@
 ## Transfer limit and same holder (hold-out v2)
 - Limit is per operation: > 100000 → E506 (100000 passes, two of 100000 in a row pass: 1011, 1012).
 - **Not applied between accounts with the same holder name**: 29/29 large transfers between different names → E506; 3/3 between two accounts named "Beto" skip the limit: 1529, 1530 (→ E507, insufficient) and 1598 (100001 → OK). Confidence: probable (2 sequences). Name comparison case-sensitivity untested.
+
+## Block A — HTTP entry layer (ids 1858–1931)
+- Body size: raw body > 8192 bytes → 413 `E101 cuerpo demasiado grande` (8192 ok, 8193 fails: binary search 1914–1927); counts the whole raw body, not only `m` (padded short m → E101, 1928).
+- Order: route (E404) → auth (E001) → E101 → E100 → E102: big body without token → 401 (1929); on unknown route → 404 (1930); big invalid JSON → 413 (1931).
+- Body shapes: empty / truncated JSON → E100 (1870, 1881); null, array, string, number, `{"M":…}`, m null/array/bool, `{}` → E102 (1871–1877, 1882, 1883); extra keys ignored (1878); duplicate key, last wins (1879); whitespace around JSON ok (1880).
+- Content-Type ignored: none, text/plain, form, `charset=latin1` all parse JSON (1885–1888).
+- Routes are exact: `/msg/`, `/MSG`, `//msg`, `/msg/extra`, `/health/`, `HEAD /health` (empty body), `OPTIONS`, `GET /__reset`, `POST /health`, `PUT`/`DELETE /msg`, `GET /` → 404 E404 (1890–1902); query string ignored (`/msg?x=1` → pong, 1892).
+- Auth: exactly `Bearer <token>`; trailing space tolerated (1907); `bearer`/`BEARER` (1904, 1905), double space (1906), `Token`, bare token, `Bearer` alone, `Basic` → 401 (1908, 1910–1913).

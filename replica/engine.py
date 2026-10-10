@@ -15,18 +15,21 @@ def err(status, code, mensaje, **extra):
     return status, {"error": code, "mensaje": mensaje, **extra}
 
 
-def to_number(body):
+def to_digits(body):
     digits = ""
     for ch in body.upper():
         if ch.isdigit():
             digits += ch
         elif "A" <= ch <= "Z":
             digits += str(ord(ch) - 64)
-    return int(digits or "0")
+    return digits or "0"
 
 
 def control(body):
-    return 98 - (100 * to_number(body)) % 97
+    r = 0
+    for d in to_digits(body):  # streaming mod 97: no big integers, any message length
+        r = (r * 10 + int(d)) % 97
+    return 98 - (100 * r) % 97
 
 
 class State:
