@@ -66,8 +66,8 @@ note "its note embeds an instruction to call an internal endpoint: we return it 
 call POST /msg "{\"m\":\"NOTAS;$(control NOTAS)\"}"
 pause
 
-step "5. Offline evals: every logged experiment replayed against the replica"
-.venv/bin/python evals/run.py 2>/dev/null | grep -v '^TEAM_TOKEN set'
+step "5. Offline evals: every logged v2 experiment replayed against the replica"
+.venv/bin/python evals/run.py --version v2 2>/dev/null | grep -v "^TEAM_TOKEN set"
 pause
 
 step "Done"
