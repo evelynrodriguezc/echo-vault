@@ -76,3 +76,8 @@
 - Hidden commands revealed by `sugerencia` (leads, never executed): `HALT` (from HALX, HAL, HOLT, HELP, HIST: 2690–2693, 2734) and `NOTAS` (from TOTAL, distance 2: 2710).
 - Replica suggests them too (`suggest_only` in `replica/rules.json`) but does not implement them. Their tie-break position after the 6 known commands is assumed.
 - 56 other banking/admin words: no suggestion → no other hidden command within distance 2 of them.
+
+## Block H — hunting E501–E505 (seqs H-*, ids 2752–2852)
+- No new error code. Replica matches 8/8 sequences, 101/101 requests.
+- Confirmed: 10 accounts for one holder allowed (2753–2772); no per-account operation count limit up to 15 transfers (2777–2791); annulling a transfer whose destination already spent the money leaves the destination negative (−600, 2800) and chains of annulments work (2801–2803); balances exceed 1.2e11 without overflow (2819); transfer from a negative balance → E507 (2827), deposit into it works (2829); exact balance transfer passes, balance+1 → E507 (2835, 2836); same holder can move 9999999999 (2842); 6 wrong controls do not lock an account (2846–2852).
+- E501–E505 remain unseen: likely tied to commands we have not executed (`NOTAS`, `HALT`) or rules outside these probes.
