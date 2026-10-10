@@ -74,6 +74,7 @@
 ## Block G — suggestion mining (seq G-sugerencias, ids 2689–2751)
 - Names sent with zero arguments only; all answered E301 (nothing executed).
 - Hidden commands revealed by `sugerencia` (leads, never executed): `HALT` (from HALX, HAL, HOLT, HELP, HIST: 2690–2693, 2734) and `NOTAS` (from TOTAL, distance 2: 2710).
+- HALT provenance: We first learned the name HALT from a public participant repository (cited per event rules: rominapitronello/frontier-bog26-caja-negra) and blocked it before fuzzing; our own E301 suggestion probes later confirmed it (2690-2693). No other finding came from other repos.
 - Replica suggests them too (`suggest_only` in `replica/rules.json`) but does not implement them. Their tie-break position after the 6 known commands is assumed.
 - 56 other banking/admin words: no suggestion → no other hidden command within distance 2 of them.
 
