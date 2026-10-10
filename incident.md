@@ -5,10 +5,13 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 ## 0. Before 15:30
 - Last known-good replica commit and its `evals/run.py` report are recorded below (baseline).
 - Canary green on v1: `cd explore && PROBE_VERSION=v1 python3 canary.py` → 0 diffs.
-- Request budget left ≥ 2k (canary ~40 per run, re-exploration ~1k).
+- Request budget left ≥ 2k (canary ~40 per run, spec probe ~103 per run × 3, re-exploration ~1k).
 
-## 1. Detect (every 15–20 min from 15:00)
-- Run the canary: `cd explore && PROBE_VERSION=v1 python3 canary.py`. Exit code 1 = at least one diff.
+## 1. Detect (first thing after reconnecting, then every 15–20 min from 15:00)
+- **Step 1 after reconnecting: canary + spec probe.**
+  - Canary (~40 requests, fast signal): `cd explore && PROBE_VERSION=v1 python3 canary.py`. Exit code 1 = at least one diff.
+  - Spec probe (~103 requests, one evidence line per SPEC.md row, prints the spec IDs whose evidence no longer reproduces): `cd explore && PROBE_VERSION=<v1|v2> python3 spec_probe.py`. Check the plan first with `--dry-run` (sends nothing).
+- **Repeat the spec probe at ~18:00 and ~19:30**: participant tokens stop working against the original at 20:00, so the last chance to collect evidence is before then.
 - A diff is a lead, not a conclusion: rerun once to rule out flakiness or a rate-limit response (`X-Frontier-Infra`).
 - Record the time of the first diff and the last clean canary: that window is "since when" for SPEC section 6.
 
@@ -36,7 +39,8 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 - `HALT` stays blocked in `probe.py`; new command names are tested only with zero arguments and explicit approval.
 
 ## 6. Document
-- SPEC section 6 "Cambios durante el día": what changed, since when (canary window), how detected (canary ids), evidence ids (v2 lines).
+- **Changed SPEC rows are never deleted.** Mark the old row "v1, superseded in v2" (keep its v1 evidence) and add a new v2 row right below it with the post-change evidence ids (spec probe / re-exploration lines tagged `v2`).
+- SPEC section 6 "Cambios durante el día": what changed, since when (canary window), how detected (canary and spec probe ids), evidence ids (v2 lines).
 - README results table: before/after per category, v1 vs v2.
 
 ## Baseline (fill before 15:30)
