@@ -37,7 +37,7 @@ Goal: detect the change within ~20 minutes, keep the old evidence apart, re-lear
 ## Baseline (fill before 15:30)
 | Item | Value |
 |---|---|
-| Replica commit | |
-| Local evals | |
-| Official validation | |
-| Canary v1 | |
+| Replica commit | `9c7d5fe` (rules in `replica/rules.json`) |
+| Local evals | 100% in all 10 categories (2,500+ logged requests replayed) |
+| Official validation | #1 at 11:50: 64/100 (before blocks A–F fixes) |
+| Canary v1 | 12:17, 0 diffs (seqs `canary-1217-*`, 37 requests) |
