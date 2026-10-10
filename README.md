@@ -142,6 +142,7 @@ Since then `_send` is private and only `probe()` calls it. Ids 1–82 used a wro
 <details>
 <summary>Known deviations</summary>
 
+- **HALT not implemented (deliberate).** We asked staff whether `HALT` affects only the caller's token and got no written confirmation, so it stayed blocked: it may stop the service shared by every team. The replica answers it as an unknown command. Run 3 (89/100, before the E507 lock fix) had 11 status mismatches; unreplicated HALT behavior may explain some of them. We chose safety over score.
 - `GET /health` returns `200 {"ok":true}` without a token only when `Host` is `healthcheck.railway.app` (Railway's healthcheck sends no token). Any other host gets `401 E001` like the original. Low risk: the hidden set is unlikely to spoof `Host`.
 </details>
 
