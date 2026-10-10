@@ -1,5 +1,7 @@
 """Probe the original black-box service and log every request to experimentos.jsonl."""
+import fcntl
 import json
+import os
 import time
 import urllib.error
 import urllib.request
@@ -23,7 +25,30 @@ def _load_env():
 ENV = _load_env()
 BASE = ENV["BLACKBOX_URL"].rstrip("/")
 TOKEN = ENV["BLACKBOX_TOKEN"]
+MAX_PER_RUN = int(os.environ.get("PROBE_MAX", "600"))  # hard cap per script run
+MAX_REPEATS = 5  # same request more than this many times in a row = runaway loop
 _last_call = 0.0
+_sent = 0
+_last_key, _repeats = None, 0
+
+# Only one probing script at a time: all share the 10 rps limit of the token.
+_lock = open(ROOT / ".probe.lock", "w")
+try:
+    fcntl.flock(_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+except BlockingIOError:
+    raise SystemExit("another probing script is running; wait for it to finish")
+
+
+def _guard_batch(method, path, body, raw_body):
+    global _sent, _last_key, _repeats
+    key = (method, path, raw_body if raw_body is not None else json.dumps(body, sort_keys=True))
+    _repeats = _repeats + 1 if key == _last_key else 1
+    _last_key = key
+    if _repeats > MAX_REPEATS:
+        raise RuntimeError(f"stopped: same request repeated {_repeats} times in a row: {key}")
+    if _sent >= MAX_PER_RUN:
+        raise RuntimeError(f"stopped: hard cap of {MAX_PER_RUN} requests per run reached (set PROBE_MAX to raise it)")
+    _sent += 1
 
 
 def _next_id():
@@ -43,6 +68,7 @@ def send(method, path, body=None, token=TOKEN, raw_body=None, content_type="appl
     global _last_call
     if _is_halt(body, raw_body):
         raise ValueError("blocked: HALT is never sent to the original")
+    _guard_batch(method, path, body, raw_body)
     wait = MIN_INTERVAL - (time.time() - _last_call)
     if wait > 0:
         time.sleep(wait)
