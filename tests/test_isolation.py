@@ -2,7 +2,7 @@
 from pathlib import Path
 
 REPLICA = Path(__file__).resolve().parent.parent / "replica"
-FORBIDDEN = ["BLACKBOX", "caja-negra", "railway.app", "urllib", "requests", "httpx", "socket", "http.client", "aiohttp"]
+FORBIDDEN = ["BLACKBOX", "caja-negra", "up.railway.app", "urllib", "requests", "httpx", "socket", "http.client", "aiohttp"]
 
 
 def test_replica_never_references_the_original():

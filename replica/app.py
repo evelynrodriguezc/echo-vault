@@ -11,6 +11,7 @@ from engine import State, handle
 TEAM_TOKEN = os.environ.get("TEAM_TOKEN", "")
 print(f"TEAM_TOKEN set: {bool(TEAM_TOKEN)} (length {len(TEAM_TOKEN)})", flush=True)  # never the value
 ROUTES = {("GET", "/health"), ("POST", "/__reset"), ("POST", "/msg")}
+RAILWAY_HEALTHCHECK_HOST = "healthcheck.railway.app"
 MAX_BODY = 8192  # bytes; larger raw body -> 413 E101 (checked after route and auth)
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
@@ -28,6 +29,8 @@ async def catch_all(request: Request, path: str):
     route = (request.method, "/" + path)
     if route not in ROUTES:
         return reply(404, {"error": "E404", "mensaje": "ruta desconocida"})
+    if route == ("GET", "/health") and request.headers.get("host") == RAILWAY_HEALTHCHECK_HOST:
+        return reply(200, {"ok": True})  # platform healthcheck sends no token; any other host still needs one
     if not TEAM_TOKEN or request.headers.get("authorization", "").strip() != f"Bearer {TEAM_TOKEN}":
         return reply(401, {"error": "E001", "mensaje": "no autorizado"})
     if route == ("GET", "/health"):
