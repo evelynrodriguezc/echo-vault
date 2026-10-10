@@ -29,6 +29,16 @@ Contract: `GET /health`, `POST /__reset`, `POST /msg` with `{"m": "CMD;args;cont
 | Hold-out v2 (money flows, 30 seqs) — before same-holder rule    | 28/30     | 379/388  |
 | Hold-out v2 — after same-holder rule                            | 30/30     | 388/388  |
 
+Official hidden set (100 tests, 3 runs allowed):
+
+| Run | Time | Replica | Passing |
+|---|---|---|---|
+| 1 | 11:50 | `0da9042` (commands + same-holder rule) | 64/100 |
+| 2 | ~12:25 | `63ff241` (+ blocks A–F: body limit E101, PING skips control, ASCII-only control digits, suggestion at distance ≤ 2, amount ≤ 9999999999, TRACE/non-standard methods) | 79/100 |
+| 3 | reserved for after the 15:30 change | | |
+
+Local evals stayed at 100% while the official score was 64 and 79: our hold-outs share the replica's blind spots, so the gap measures coverage, not code.
+
 Honest finding: hold-out v1 was biased toward errors (100 of 437 responses were `E401`, only 13 successful deposits/transfers, 1 `E506`, no `E507`) because the generator often referenced accounts that did not exist yet. It passed 100% but under-tested money flows. Hold-out v2 fixed that and exposed a real rule we had missed: the transfer limit is skipped between accounts with the same holder name.
 
 ## Log completeness
