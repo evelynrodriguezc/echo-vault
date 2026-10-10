@@ -6,7 +6,7 @@ Evaluation order (see explore/FINDINGS.md): shape (E103/E104) -> control format 
 import re
 
 MAX_TRANSFER = 100_000
-MAX_AMOUNT = 10**9  # assumed: 999999999999 is rejected, 500000 accepted; exact bound not probed yet
+MAX_AMOUNT = 9_999_999_999  # largest accepted amount (10 digits); 10000000000 -> E303
 
 ARITY = {"PING": 0, "ALTA": 1, "CONSULTA": 1, "DEPOSITO": 2, "TRANSFER": 3, "ANULA": 1}
 
@@ -65,7 +65,7 @@ def parse_amount(text):
     if not re.fullmatch(r"[1-9][0-9]*", text):
         return None
     value = int(text)
-    return value if value < MAX_AMOUNT else None
+    return value if value <= MAX_AMOUNT else None
 
 
 def handle(state, m):

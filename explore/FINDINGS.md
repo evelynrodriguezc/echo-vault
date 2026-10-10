@@ -56,3 +56,10 @@
 - E301 adds `"sugerencia": <command>` when the unknown command is at Levenshtein distance ≤ 2 from a known one: 29/29 observations fit (distance 1: 1957–1960, 1963, 1965, 1967, 1969–1973; distance 2: 1961, 1962, 1964, 1966, 1968, 1985 `AYUDA`→`ANULA`); none for distance ≥ 3 (`LISTA`, `BAJA`, `SALDO`, `SALDOS`… 1978–1984, 971). Tie-break between two commands at equal distance: assumed (list order PING, ALTA, CONSULTA, DEPOSITO, TRANSFER, ANULA).
 - PING with arguments → E302 (1975, 1976).
 - Candidate hidden commands RETIRO, SALDO, EXTRACTO, HISTORIAL, MOVIMIENTOS, BAJA, LISTA, AYUDA → all E301: no hidden command found among them (1978–1985).
+
+## Block D — open assumptions (ids 1986–2084)
+- Same-holder rule uses the exact name string: `Beto`/`BETO` (1990), `Beto`/`Beto ` (1995), `Lucía`/`Lucia` (2000) → E506; `Ana`/`Ana` → 150000 passes (2005). Confidence now confirmed (with 1529, 1530, 1598).
+- Amount: positive integer without leading zeros, at most 9999999999 (2047 ok); 10000000000 → E303 (2044); binary search 2008–2047. Replica bound was 10^9 (wrong 10×): before fix `supuestos` 8/9 seqs, 77/99 requests; after 9/9, 99/99.
+- TRANSFER error order: E303 → E304 → E401 → E506 (2050–2054).
+- Ids are literal (no normalization): `ac-0001`, `AC-1`, `AC-00001`, `AC0001`, `AC-0001 ` → E401 (2058–2062); `op-0001`, `OP-1` → E402 (2064, 2065).
+- No cumulative transfer limit: 5 × 100000 in a row pass (2079–2083).
