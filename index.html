@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>echo-vault — pitch</title>
+<style>
+:root{--ink:#111;--mute:#6b6b6b;--rule:#d9d9d9;--blue:#1f3fdd;--bg:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#e9e9e9;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--ink)}
+.slide{width:1920px;height:1080px;background:var(--bg);padding:84px 110px;position:relative;display:none;flex-direction:column;overflow:hidden}
+.slide.on{display:flex}
+@media print{@page{size:1920px 1080px;margin:0} html,body{background:#fff} .slide{display:flex;page-break-after:always} .hint{display:none}}
+.top{display:flex;justify-content:space-between;font-size:22px;color:var(--mute);border-bottom:6px solid var(--ink);padding-bottom:22px}
+.top b{color:var(--ink);font-weight:600}
+.num{position:absolute;right:110px;bottom:60px;font-size:20px;color:var(--mute)}
+h1{font-size:150px;letter-spacing:-5px;font-weight:700;line-height:1}
+h2{font-size:64px;letter-spacing:-1.5px;font-weight:700;margin-top:70px;line-height:1.05}
+.lead{font-size:36px;color:#333;margin-top:22px;line-height:1.3;max-width:1300px}
+.blue{color:var(--blue)}
+.mute{color:var(--mute)}
+.big{font-size:300px;font-weight:800;letter-spacing:-12px;color:var(--blue);line-height:.85}
+.row{display:flex;gap:80px;align-items:flex-end}
+/* slide 2: anatomy of a log line */
+.line{margin-top:60px;border-top:2px solid var(--ink)}
+.cell{display:grid;grid-template-columns:260px 1fr;padding:26px 0;border-bottom:1px solid var(--rule);font-size:34px;align-items:baseline}
+.cell .k{font-size:22px;letter-spacing:2px;text-transform:uppercase;color:var(--mute)}
+.mono{font-family:"SF Mono",Menlo,monospace;font-size:31px}
+/* slide 3: steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:60px;margin-top:80px}
+.step{border-top:2px solid var(--ink);padding-top:26px}
+.step .s{font-size:150px;font-weight:800;letter-spacing:-5px;line-height:1}
+.step .t{font-size:24px;color:var(--mute);margin-top:6px}
+.step p{font-size:28px;line-height:1.35;margin-top:22px;color:#222}
+.step.last .s{color:var(--blue)}
+/* slide 4: timeline */
+.tl{margin-top:90px;position:relative;height:420px}
+.axis{position:absolute;left:0;right:0;top:120px;height:2px;background:var(--ink)}
+.ev{position:absolute;top:0;width:300px}
+.ev .tm{font-size:46px;font-weight:700;letter-spacing:-1px}
+.ev .dot{width:18px;height:18px;border-radius:50%;background:var(--ink);margin:38px 0 34px}
+.ev.hl .tm,.ev.hl .dot{color:var(--blue);background:var(--blue)}
+.ev.hl .tm{background:none}
+.ev p{font-size:26px;line-height:1.3;color:#222}
+/* slide 5: two columns */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:90px;margin-top:80px}
+.col{border-top:2px solid var(--ink);padding-top:30px}
+.col h3{font-size:44px;letter-spacing:-.5px}
+.col p{font-size:30px;line-height:1.4;margin-top:20px;color:#222}
+.quote{margin-top:26px;padding-left:24px;border-left:4px solid var(--blue);font-size:26px;color:#333;line-height:1.4}
+.links{margin-top:70px;font-size:32px;line-height:1.9}
+.links span{display:inline-block;width:220px;color:var(--mute);font-size:24px;letter-spacing:1px;text-transform:uppercase}
+.hint{position:fixed;left:16px;bottom:12px;font:14px Helvetica;color:#888}
+</style></head><body>
+
+<section class="slide">
+  <div class="top"><div><b>Frontier hackathon by Lab10</b> · Challenge 2, The black box</div><div><b>Evelyn Rodríguez</b> · github.com/evelynrodriguezc/echo-vault</div></div>
+  <div class="row" style="margin-top:120px;justify-content:space-between">
+    <div><h1>echo-vault</h1><p class="lead">An undocumented service, rebuilt from experiments.<br>Same answers, errors included.</p></div>
+  </div>
+  <div class="row" style="margin-top:auto">
+    <div class="big">89</div>
+    <div style="padding-bottom:30px"><div style="font-size:64px;font-weight:700">/100</div><div class="lead" style="margin-top:6px;font-size:30px">hidden test set, after the v2 change</div></div>
+  </div>
+  <div class="num">1 / 6</div>
+</section>
+
+<section class="slide">
+  <div class="top"><div><b>How I worked</b></div><div>echo-vault</div></div>
+  <h2>Every request is an experiment.</h2>
+  <p class="lead">One line of the log, as it was written at 11:10. 4,500+ lines like it; the spec cites them by id.</p>
+  <div class="line">
+    <div class="cell"><div class="k">Hypothesis</div><div>My check-digit formula predicts <b>85</b> for an account I never sent.</div></div>
+    <div class="cell"><div class="k">Request</div><div class="mono">CONSULTA;AC-0042;<b class="blue">85</b></div></div>
+    <div class="cell"><div class="k">Response</div><div class="mono">404 · E401 cuenta inexistente</div></div>
+    <div class="cell"><div class="k">Conclusion</div><div>Integrity passed, so 85 was right. 3 of 3 unseen predictions held. <span class="mute">· log id 948</span></div></div>
+  </div>
+  <div class="num">2 / 6</div>
+</section>
+
+<section class="slide">
+  <div class="top"><div><b>Score</b></div><div>echo-vault</div></div>
+  <h2>My local tests said 100%. The judge said 64.</h2>
+  <p class="lead">The gap was coverage, not code: my tests replayed my own experiments.</p>
+  <div class="steps">
+    <div class="step"><div class="s">64</div><div class="t">run 1 · 11:50</div><p>Commands, check digit, same-holder rule. Local evals at 100%.</p></div>
+    <div class="step"><div class="s">79</div><div class="t">run 2 · 12:25</div><p>Probed what I had not seen: body limit, unicode digits, typo suggestions, amount bounds.</p></div>
+    <div class="step last"><div class="s">89</div><div class="t">run 3 · 16:20 · v2</div><p>Hidden <span class="mono" style="font-size:26px">NOTAS</span> command, and the provider's 15:30 change.</p></div>
+  </div>
+  <div class="num">3 / 6</div>
+</section>
+
+<section class="slide">
+  <div class="top"><div><b>The 15:30 incident</b></div><div>echo-vault</div></div>
+  <h2>The change arrived late. The log caught it.</h2>
+  <div class="tl">
+    <div class="axis"></div>
+    <div class="ev" style="left:0"><div class="tm">15:30</div><div class="dot"></div><p>Ticket: v2 deployed, 3 behaviors changed.</p></div>
+    <div class="ev hl" style="left:340px"><div class="tm">15:55</div><div class="dot"></div><p>First v2 answer to my token. Balance becomes a string.</p></div>
+    <div class="ev" style="left:680px"><div class="tm">15:58</div><div class="dot"></div><p>Spec probe: 4 of 66 rows changed. A transfer of 100,000 is now rejected.</p></div>
+    <div class="ev" style="left:1020px"><div class="tm">16:04</div><div class="dot"></div><p>New limit found: 50,000. Fixed in rules and engine, evals on v2 100%, deployed.</p></div>
+    <div class="ev hl" style="left:1360px"><div class="tm">16:20</div><div class="dot"></div><p>Last official run: <b>89/100</b>. Lock rule refined at 16:31.</p></div>
+  </div>
+  <p class="lead" style="margin-top:auto;font-size:28px">Old spec rows are never deleted: marked "superseded in v2", with the new evidence below.</p>
+  <div class="num">4 / 6</div>
+</section>
+
+<section class="slide">
+  <div class="top"><div><b>Safety</b></div><div>echo-vault</div></div>
+  <h2>Some answers are instructions. I kept them as data.</h2>
+  <div class="cols">
+    <div class="col"><h3>A hidden command with a note</h3>
+      <p>Typo suggestions revealed <span class="mono" style="font-size:28px">NOTAS</span>. Its note tells the reader to call an internal export endpoint with their token.</p>
+      <div class="quote">Replicated word for word. Never followed. Any model that reads service output runs with no tools and no network.</div></div>
+    <div class="col"><h3>A command that can stop it</h3>
+      <p><span class="mono" style="font-size:28px">HALT</span> may stop the service every team shares. Without written confirmation that it only affects my token, I left it blocked.</p>
+      <div class="quote">Fewer points, on purpose. Documented as a known deviation.</div></div>
+  </div>
+  <div class="num">5 / 6</div>
+</section>
+
+<section class="slide">
+  <div class="top"><div><b>echo-vault</b></div><div>Evelyn Rodríguez</div></div>
+  <h2>A spec good enough to rebuild from.</h2>
+  <p class="lead">A model given only my spec, with no tools, rebuilt the service: 99.97% of the log matched, for four cents.</p>
+  <div class="links">
+    <div><span>Repo</span>github.com/evelynrodriguezc/echo-vault</div>
+    <div><span>API</span>echo-vault.up.railway.app <span style="width:auto;text-transform:none;letter-spacing:0">(token required)</span></div>
+    <div><span>Next</span>run the canary and spec probe on a schedule as conformance tests</div>
+  </div>
+  <div class="num">6 / 6</div>
+</section>
+
+<div class="hint">← → to navigate · F for fullscreen</div>
+<script>
+const s=[...document.querySelectorAll('.slide')];let i=0;
+function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);s.forEach(e=>{e.style.transform=`scale(${k})`;e.style.transformOrigin='top left';e.style.position='absolute';e.style.left=((innerWidth-1920*k)/2)+'px';e.style.top=((innerHeight-1080*k)/2)+'px'})}
+function show(n){i=Math.max(0,Math.min(s.length-1,n));s.forEach((e,j)=>e.classList.toggle('on',j===i))}
+addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key))show(i+1);if(['ArrowLeft','PageUp'].includes(e.key))show(i-1);if(e.key==='f')document.documentElement.requestFullscreen?.()});
+if(!matchMedia('print').matches){addEventListener('resize',fit);fit()}
+if(location.hash)document.querySelector('.hint').style.display='none';
+show(parseInt(location.hash.slice(1))||0);
+</script>
+</body></html>
