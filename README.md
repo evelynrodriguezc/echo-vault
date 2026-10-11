@@ -1,5 +1,7 @@
 # echo-vault
 
+Built for the Frontier hackathon by Lab10, Challenge 2: The black box.
+
 Exact replica of an undocumented account service, rebuilt from black-box experiments.
 
 [Deploy (API, token required)](https://echo-vault.up.railway.app) · [Video](https://youtu.be/kfs5qeasMbQ) · [Pitch](docs/pitch.png) · [DESIGN.pdf](docs/DESIGN.pdf) · [SPEC.md](SPEC.md) · [experimentos.jsonl](experimentos.jsonl)
@@ -70,7 +72,7 @@ Times from commit and log timestamps (Bogotá).
 | 10:37 | Recon: the 20 public examples replayed twice | Deterministic, 0 diffs |
 | 10:50 | HALT guard added; one HALT leaked from a faulty guard test | Service stayed up; reported in Log completeness |
 | 11:10 | Check-digit formula tested on 3 unseen messages | 3/3 accepted; matches 643 observations |
-| before 12:00 | Design doc and diagram submitted | — |
+| 11:15 | Design doc (PDF) and diagram finalized and submitted | — |
 | 11:25 | Replica skeleton and offline evals | 100% on logged sequences |
 | 11:47 | Hold-out v2 (money flows) | Found the same-holder rule; 28/30 → 30/30 |
 | 11:50 | Validation run 1 | 64/100 |
