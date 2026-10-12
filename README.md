@@ -13,6 +13,7 @@ Exact replica of an undocumented account service, rebuilt from black-box experim
 | Hidden set (100 tests, 3 runs allowed), run 1 (11:50, `0da9042`) | 64/100 |
 | Hidden set, run 2 (~12:25, `63ff241`) | 79/100 |
 | Hidden set, run 3 (16:20, `b29b668`, v2 replica) | 89/100 |
+| Hidden set, final judge run (21:11) | 95/100 |
 | Local evals (`evals/run.py --version v2`, every logged v2 sequence replayed) | 100% (v1 sequences drop where v2 changed behavior, as expected) |
 | Blind spec check (reimplementation from `SPEC.md` only, v1 spec at 12:44) | 99.97% (2980/2981 requests) |
 | LLM cost (OpenRouter) | $0.082 blind reader + ~$0.005 model checks; $0 at runtime |
@@ -20,7 +21,7 @@ Exact replica of an undocumented account service, rebuilt from black-box experim
 
 ## Highlights
 
-- Hidden set 64 → 79 → 89 while local evals stayed at 100%: the gap was coverage, not code. [Results](#results) · [What didn't work](#what-didnt-work)
+- Hidden set 64 → 79 → 89 → 95 while local evals stayed at 100%: the gap was coverage, not code. [Results](#results) · [What didn't work](#what-didnt-work)
 - Prompt injection in `NOTAS` (asks to call `POST /internal/export-docs`) replicated as data, never followed. [SPEC risks](SPEC.md#7-riesgos-risks-a-new-client-should-not-inherit) · log ids 2854–2857
 - One `HALT` leaked from a faulty guard test; now blocked at the only network path and reported. [`explore/probe.py`](explore/probe.py) · [Log completeness](#log-completeness)
 - Spec rebuilt blind by a model with no tools: 99.97% of the log for $0.04 per run. [`evals/blind/runs.jsonl`](evals/blind/runs.jsonl)
@@ -85,6 +86,7 @@ Times from commit and log timestamps (Bogotá).
 | 16:04 | v2 replica deployed and verified | Evals v2 100% |
 | 16:20 | Validation run 3 | 89/100 |
 | 16:30 | Block M-lock: E507 also counts toward the lock | Fixed, deployed and verified 16:31 |
+| 21:11 | Final judge run | 95/100 |
 
 ## How I used AI
 
