@@ -4,7 +4,7 @@ Built for the Frontier hackathon by Lab10, Challenge 2: The black box.
 
 Exact replica of an undocumented account service, rebuilt from black-box experiments.
 
-[Deploy (API, token required)](https://echo-vault.up.railway.app) · [Video](https://youtu.be/kfs5qeasMbQ) · [Pitch](docs/pitch.png) · [DESIGN.pdf](docs/DESIGN.pdf) · [SPEC.md](SPEC.md) · [experimentos.jsonl](experimentos.jsonl)
+[Deploy (API, token required)](https://echo-vault.up.railway.app) · [DESIGN.pdf](docs/DESIGN.pdf) · [SPEC.md](SPEC.md) · [experimentos.jsonl](experimentos.jsonl)
 
 ## Results
 
