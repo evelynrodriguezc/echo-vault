@@ -4,7 +4,7 @@ Built for the Frontier hackathon by Lab10, Challenge 2: The black box.
 
 Exact replica of an undocumented account service, rebuilt from black-box experiments.
 
-[Deploy (API, token required)](https://echo-vault.up.railway.app) · [DESIGN.pdf](docs/DESIGN.pdf) · [SPEC.md](SPEC.md) · [experimentos.jsonl](experimentos.jsonl)
+Deploy (offline, see [Deploy](#deploy)) · [DESIGN.pdf](docs/DESIGN.pdf) · [SPEC.md](SPEC.md) · [experimentos.jsonl](experimentos.jsonl)
 
 ## Results
 
@@ -41,7 +41,9 @@ TEAM_TOKEN=<team token> .venv/bin/uvicorn --app-dir replica app:app --port 8000
 
 ## Deploy
 
-Railway builds from requirements.txt + railway.json; Python version pinned in .python-version.
+The Railway deploy (`echo-vault.up.railway.app`) is shut down. The hackathon is over and the final judge run (95/100) is recorded, so the hosted entrypoint is no longer needed; keeping it up would only spend budget. Run the replica locally with the Quickstart above.
+
+To redeploy: Railway builds from requirements.txt + railway.json; Python version pinned in .python-version.
 
 ## How it works
 
